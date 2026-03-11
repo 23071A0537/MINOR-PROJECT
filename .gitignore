@@ -40,3 +40,8 @@ desktop.ini
 *.swo
 .idea/
 .vscode/
+
+
+# Allow Stage 2 parquet files
+!DATA_stage_2_with_near_zero/*.parquet
+!DATA_stage_2_without_near_zero/*.parquet
