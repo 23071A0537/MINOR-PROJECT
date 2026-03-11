@@ -1,0 +1,91 @@
+STAGE 2 - CLASSICAL PREPROCESSING PIPELINE
+Revised Code Evaluation - Version 2
+Explainable Hybrid Quantum-Classical NIDS  |  Reassessment of updated notebook  |  March 2026
+1. Executive Summary
+The updated notebook resolves three of the four previous findings (CF-S2-02, CF-S2-03, CF-S2-04) and introduces one new critical defect. Cell 9 (Step 4 - Categorical Encoding) contains four syntax and logic errors that prevent the cell from executing. The notebook cannot run end-to-end in its current state. Steps 1-3 and 5-11 remain architecturally correct and all other previous findings are addressed.
+
+Overall Verdict
+? BLOCKEDSteps Compliant
+10 of 11Previous Findings Fixed
+3 of 4New Issues Introduced
+1 critical (4 errors)
+2. What Changed vs. Previous Version
+The following three findings from the first evaluation were correctly resolved in this revision:
+• CF-S2-02 RESOLVED: 'flag' column encoding method now explicitly asserted with assert 'flag' in freq_cols and a descriptive error message.
+• CF-S2-03 RESOLVED: UNSW-NB15 sentinel pattern now derived deterministically from PER_DATASET_FEATURES['unsw_nb15'] via the alignment map - no longer dependent on a single data row index.
+• CF-S2-04 RESOLVED: freq_sentinel_rule key added to stage2_preprocessing_artefacts.json documenting the __ABSENT__ ? -1.0 / unseen ? 0.0 mapping for production inference.
+One finding remains open and one new critical defect was introduced:
+• CF-S2-01 STILL OPEN: OHE placeholder in apply_ohe() still uses categories_[col][0]. Not addressed in this revision.
+• NEW-01 CRITICAL INTRODUCED: Cell 9 contains four syntax/logic errors (two SyntaxError, one NameError, one logic branch error) that make the cell unparseable and unexecutable.
+
+3. Step-by-Step Adherence
+Status reflects the updated notebook. Step 4 is now FAIL due to the introduced syntax errors.
+
+StepNameStatusKey FindingStep 1Load & Schema ValidatePASSAll 5 reference ops correct. Both JSON artefacts loaded.Step 2Feature AlignmentPASSSentinel policy correct. 154-col assertion present.Step 3Dual-Stratified SplitPASSCompound strat key, random_state=42, split before all fit() calls.Step 4Categorical EncodingFAILCRITICAL: 4 syntax errors make Cell 9 unparseable - cannot execute.Step 5Sentinel Mask CreationPASSMetadata-driven, feature lineage propagated. Before scaling.Step 6CICFlowMeter ClippingPASSAll 10 columns, CICIDS-2017 rows only, correct bounds.Step 7ImputationPASSMedian, train-only fit, hard NaN assert.Step 8QG-03 Leakage DocumentationPASSInf assertion + quantification correct.Step 9SentinelAware MinMax ScalingPASSCustom scaler correct, train-only fit, sentinel zeroed.Step 10SMOTE OversamplingPASSCF-S2-03 fixed: pattern now derived from alignment_map, not data row.Step 11Validate & SavePASSAll 8 assertions. CF-S2-04 fixed: freq_sentinel_rule added to artefact.
+4. Critical New Defect - Cell 9 Syntax Errors (NEW-01)
+Cell 9 implements Step 4 (Categorical Encoding). This revision introduced editing errors that break the cell. The four specific errors are:
+
+#LocationError TypeDetail1Cell 9, ~line 70Logic Error - Wrong branchThe block that drops original OHE columns and concatenates encoded columns (X_train_enc.drop / pd.concat) is placed inside the else: branch (the 'no OHE columns' path). It must be inside the if ohe_cols: block, after the feature_lineage loop. In the else branch, ohe_train_df and ohe_test_df do not exist, so this code would raise NameError at runtime on any dataset that has OHE columns.2Cell 9, ~line 74SyntaxError - Orphan statement'for col in X_train_enc.columns:' appears as a standalone line with no body before the next else: clause. Python parses this as an incomplete compound statement and raises SyntaxError: expected an indented block. This also means Cell 9 cannot even be compiled, let alone executed.3Cell 9, ~line 84NameError - Variable used before definition'X_test_enc = X_test_enc[post_enc_feature_names]' appears before post_enc_feature_names is assigned (which happens 3 lines later). At runtime this raises NameError: name 'post_enc_feature_names' is not defined.4Cell 9, ~lines 88-94SyntaxError - Merged print statementsMultiple print() calls have been concatenated on single lines without any separator, e.g.: print(f'OHE columns added: ...')print(f'Test shape: ...'). Python raises SyntaxError: invalid syntax at the second print on each of these lines. This affects at least 4 print statements and the n_features_post_enc assignment line.
+Impact: Because errors 2 and 4 are SyntaxErrors, Python cannot compile Cell 9 at all. The notebook will halt at Cell 9 and Cells 10-26 will not run. The pipeline cannot produce any output in its current state.
+
+5. Full Findings - Delta Across Both Versions
+Complete comparison of all findings from Version 1 and Version 2 evaluations.
+
+FindingPrev SevChangeDetailCF-S2-01MEDIUMNO CHANGEOHE sentinel placeholder still uses categories_[col][0]. The force-zero mask corrects output but the approach is fragile. This was not addressed in this revision.CF-S2-02LOWFIXEDExplicit assertion added: assert 'flag' in freq_cols with descriptive message. CF-S2-02 closed.CF-S2-03LOWFIXEDUNSW-NB15 sentinel pattern now derived from PER_DATASET_FEATURES['unsw_nb15'] via alignment_map. No longer reads from a single data row. CF-S2-03 closed.CF-S2-04LOWFIXEDfreq_sentinel_rule: {'__ABSENT__': -1.0, 'unseen': 0.0} added to preprocessing_artefacts.json. CF-S2-04 closed.CF-S2-05INFONO CHANGEdel unified_df / gc.collect() pattern unchanged. Still safe, still undocumented for maintainers.NEW-01-NEW - INTRODUCEDCell 9 contains 4 syntax errors that prevent execution: (1) drop/concat block placed inside the else branch instead of after it; (2) orphan 'for col in X_train_enc.columns:' line with no body; (3) X_test_enc reindexed to post_enc_feature_names before that variable is defined; (4) multiple print statements merged on single lines with no separator.
+6. Required Fixes
+FIX-1 through FIX-4 must be applied before the notebook can execute. FIX-5 is the remaining pre-submission improvement.
+
+FixPriorityStepAction RequiredFIX-1CRITICALStep 4Move the X_train_enc.drop(columns=ohe_cols) / pd.concat block OUT of the else: branch and into the if ohe_cols: block, immediately after the feature_lineage loop. The else: branch should only set ohe_categories={} and ohe_col_names=[].FIX-2CRITICALStep 4Remove the orphan 'for col in X_train_enc.columns:' line (line ~74). It has no body and causes SyntaxError. The dtype-check loop appears correctly 10 lines later - the orphan is a duplicate fragment.FIX-3CRITICALStep 4Move 'post_enc_feature_names = sorted(X_train_enc.columns.tolist())' to BEFORE the line 'X_test_enc = X_test_enc[post_enc_feature_names]'. The variable must be defined before it is used.FIX-4CRITICALStep 4Split all merged print statements onto separate lines. Every print(...)print(...) must become two lines. Also fix the merged assignment: 'n_features_post_enc = len(post_enc_feature_names)print(...)' must be two lines.FIX-5MEDIUMStep 4CF-S2-01 still unresolved: replace categories_[col][0] OHE placeholder with a guaranteed-absent sentinel string (e.g. '__OHE_ABSENT__') in apply_ohe(). Confirm handle_unknown='ignore' returns all-zeros for unseen values.
+7. Corrected Step 4 Code Structure
+The intended logic for Cell 9, after fixes applied:
+
+Correct if/else structure for OHE block:
+if ohe_cols:
+    ohe.fit(fit_data)                       # fit on non-sentinel train rows
+    ohe_categories = { col: ohe.categories_[i].tolist() ... }
+    def apply_ohe(...): ...
+    ohe_train_df, ohe_col_names = apply_ohe(X_train_enc, ohe, ohe_cols)
+    ohe_test_df, _              = apply_ohe(X_test_enc, ohe, ohe_cols)
+    for i, col in enumerate(ohe_cols):      # build feature lineage
+        for cat in ohe.categories_[i]:
+            feature_lineage[f'{col}__{cat}'] = col
+    # ? drop/concat goes HERE, inside the if block
+    X_train_enc = X_train_enc.drop(columns=ohe_cols)
+    X_test_enc  = X_test_enc.drop(columns=ohe_cols)
+    X_train_enc = pd.concat([X_train_enc, ohe_train_df], axis=1)
+    X_test_enc  = pd.concat([X_test_enc, ohe_test_df], axis=1)
+else:                                       # only if no OHE columns
+    ohe_categories = {}
+    ohe_col_names  = []
+
+# dtype check - no orphan for: line here
+for col in X_train_enc.columns:
+    if X_train_enc[col].dtype == object:
+        raise ValueError(...)
+
+# define post_enc_feature_names BEFORE using it
+post_enc_feature_names = sorted(X_train_enc.columns.tolist())
+X_train_enc = X_train_enc[post_enc_feature_names]
+X_test_enc  = X_test_enc[post_enc_feature_names]    # now safe to use
+X_train_enc = X_train_enc.astype(np.float64)
+X_test_enc  = X_test_enc.astype(np.float64)
+n_features_post_enc = len(post_enc_feature_names)
+
+# each print on its own line
+print(f'Post-encoding columns: {n_features_post_enc}')
+print(f'OHE columns added: {len(ohe_col_names)}')
+print(f'Train shape: {X_train_enc.shape}')
+print(f'Test  shape: {X_test_enc.shape}')
+
+8. What Remains Correct
+Outside Cell 9, the notebook structure is sound. The following components from the previous evaluation retain their PASS status:
+• Train/test split ordering: Step 3 split still occurs before all fit() calls. Leakage-prevention is intact once Cell 9 is fixed.
+• SentinelAwareMinMaxScaler: Implementation unchanged and correct.
+• SMOTE (Step 10): CF-S2-03 fix is correctly implemented. Sentinel pattern now derived from alignment_map.
+• Step 11 artefact save: CF-S2-04 fix is correctly implemented. All 8 assertions intact.
+• No PCA: Confirmed absent from the entire notebook.
+• FrequencyEncoder: Logic unchanged and correct. CF-S2-02 assertion added correctly.
+
+9. Verdict and Next Steps
+VERDICT: Cell 9 must be fixed before the notebook can run. Apply FIX-1 through FIX-4. After fixing these four syntax errors, the pipeline is expected to be fully compliant with the reference specification (subject to CF-S2-01 remaining open). Re-run end-to-end and confirm all 8 Step 11 assertions pass before Stage 3 handoff.
+Document prepared: March 2026  |  Reassessment v2  |  Reference: Stage2_Technical_Reference.docx v1.0

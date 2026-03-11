@@ -1,0 +1,87 @@
+STAGE 2 - CLASSICAL PREPROCESSING PIPELINE
+Code Evaluation Against Technical Reference
+Explainable Hybrid Quantum-Classical NIDS  |  Version 1.0  |  March 2026
+1. Executive Summary
+The notebook Stage2_Classical_Preprocessing.ipynb was evaluated against Stage2_Technical_Reference.docx. The pipeline implements all 11 ordered steps, correctly enforces the critical train/test split ordering, and produces all 8 required output artefacts. No data leakage violations were found in the core pipeline. Five findings were identified - none are critical blockers, two are medium/low severity implementation risks that should be resolved before the camera-ready submission.
+
+Overall Assessment
+? READY - Minor fixes requiredSteps Fully Compliant
+9 of 11Steps with Warnings
+2 of 11  (Steps 4 & 10)
+2. Step-by-Step Adherence Summary
+Each step is evaluated against the reference specification. Status: PASS = fully compliant; WARN = minor issue present; FAIL = requirement not met.
+
+StepNameStatusKey FindingStep 1Load & Schema Validate? PASSschema_version, all 11 metadata cols asserted correctlyStep 2Feature Alignment? PASSSentinel policy correct: -1.0 numeric, __ABSENT__ categoricalStep 3Dual-Stratified Split? PASSCompound key master_label__source_dataset; random_state=42; split BEFORE any fit()Step 4Categorical Encoding? WARNOHE sentinel placeholder bug; flag col threshold ambiguity; freq encoder correctStep 5Sentinel Mask Creation? PASSBuilt from metadata; before scaling; feature lineage propagatedStep 6CICFlowMeter Clipping? PASSAll 10 columns present; CICIDS-2017 rows only; correct boundsStep 7Imputation? PASSMedian; fit on train only; hard assert post-imputationStep 8QG-03 Leakage Documentation? PASSInf assertion; leakage acknowledged and quantifiedStep 9SentinelAware MinMax Scaling? PASSCorrect custom scaler; fit on train only; sentinel zeroed post-scaleStep 10SMOTE Oversampling? WARNCorrect targets & params; sentinel mask uses single UNSW row (minor risk)Step 11Validate & Save? PASSAll 8 assertions coded; all 8 artefacts saved atomically
+3. Architecture & Leakage-Prevention Compliance
+All critical ordering constraints from the reference are enforced in the notebook. The table below cross-references each architectural requirement against code evidence.
+
+RequirementReference SpecStatusCode EvidencePipeline orderingStep 3 split before all fit() calls? PASSTrain/test split at Cell 7 before any OHE/imputer/scaler fitNo PCAPCA must never appear? PASSNo PCA import, no PCA call anywhere in notebook. Verified.196 / 154 features154 pre-enc union (ref specifies 196 in context doc, 154 in docx)? PASS154 used consistently. Context doc 196 refers to future post-OHE estimate.Sentinel -1.0Numeric absent ? -1.0? PASSSENTINEL_VALUE = -1.0 used throughoutSentinel __ABSENT__Categorical absent ? __ABSENT__? PASSSENT_CAT = '__ABSENT__' used in align_features()Scaler fit on train onlySentinelAwareMinMaxScaler.fit(X_train_imputed)? PASSScaler fitted on train only; transform() applied separately to testImputer fit on train onlySimpleImputer.fit(X_train_clipped)? PASSCorrectOHE fit on train onlyOneHotEncoder.fit(fit_data) - non-sentinel train rows? PASSfit_data excludes sentinel rows from training split onlyFreqEncoder fit on train onlyfreq_encoder.fit(X_train_raw, freq_cols)? PASSCorrectSMOTE on train onlysmote.fit_resample(X_train_scaled, y_train)? PASSTest set never passed to SMOTESentinel mask before scalingStep 5 before Step 9? PASSOrder enforced by cell sequenceSMOTE after scalingStep 10 after Step 9? PASSCorrect - SMOTE in normalised [0,1] space8 output artefactsAll 8 files saved? PASSAll 8 Parquet/JSON artefacts saved in Cell 24Dual stratificationmaster_label + '__' + source_dataset? PASSExactly matches reference specificationQG-03 leakage documentedStep 8 verification? PASSInf assertion + leakage quantification logged
+4. Findings Detail
+Five findings were identified. Severity: MEDIUM = should fix before deployment; LOW = recommended improvement; INFO = note for maintainers.
+
+IDSeverityStepFindingCF-S2-01MEDIUMStep 4OHE sentinel placeholder may leak a real category
+In apply_ohe(), __ABSENT__ rows are temporarily replaced with categories_[col][0] before OHE transform, then forced to all-zeros. If categories_[col][0] is also a real training category (e.g. 'icmp' for protocol_type), the placeholder is valid OHE input. The forced zero correctly masks the output, but the implementation is fragile - if the placeholder is not in ohe.categories_, sklearn's handle_unknown='ignore' returns all-zeros anyway, so the final output is correct in both paths. However, the code comment is misleading and any future refactor risk is real. Recommended fix: use a dedicated out-of-vocabulary placeholder string like '__OHE_ABSENT__' that is guaranteed not to appear in training data.CF-S2-02LOWStep 4flag column threshold is ambiguous vs reference
+The reference (Step 4 table) states flag should use FrequencyEncoder (11 unique values > threshold 10). The notebook determines encoding at runtime by counting real unique values from X_train_raw. If the training split yields exactly 10 or 11 unique flag values, the encoding method could differ from the reference expectation. This is not a bug per se - the runtime decision is architecturally correct - but it should be logged explicitly so the team can verify flag was assigned to freq_cols as expected.CF-S2-03LOWStep 10Sentinel mask uses single UNSW-NB15 row - not robust
+sentinel_mask_smote assigns the UNSW-NB15 pattern by reading one row from meta_train (index[0]). All rows for a given dataset share the same sentinel pattern, so this is logically correct today. But if upstream changes ever produce dataset-level variation in sentinel patterns, this single-row lookup will silently propagate a stale pattern. Recommended fix: derive the pattern from the feature_alignment_map directly (set of absent columns per dataset) rather than reading from a data row.CF-S2-04LOWStep 11freq_maps serialisation truncates SENT_CAT key
+In Cell 24, freq_encoder.freq_maps is serialised via {k: float(v) for k, v in maps.items()}. The FrequencyEncoder.fit() excludes __ABSENT__ from freq_map, so the serialised maps do not contain a __ABSENT__ entry. This is correct for encoding, but the artefact does not explicitly document the __ABSENT__ ? -1.0 rule. The stage2_preprocessing_artefacts.json schema in the reference specifies freq_maps should be stored - the current implementation stores them but without the sentinel mapping. Add 'freq_sentinel_rule': '__ABSENT__ -> -1.0, unseen -> 0.0' to the artefact.CF-S2-05INFOStep 3unified_df freed before meta_train/meta_test are fully validated
+del unified_df followed by gc.collect() occurs at end of Step 3, which is appropriate for memory management. However, meta_train and meta_test retain index references to the original unified_df. After del, these DataFrames are still valid (they were reset_index'd). This is safe but worth documenting for future maintainers.
+5. Stage 1 Forward Requirements - Cross-Reference
+Stage 1 raised 11 forward requirements for Stage 2. All are resolved except FR-S1-04 (QG-03 leakage), which is formally acknowledged.
+
+FR IDRequirementStatusCode ResolutionFR-S1-01Sentinel mask before normalisation? RESOLVEDStep 5 ? Step 9 ordering enforcedFR-S1-02Schema version validation? RESOLVEDschema_version == '1.0' asserted per datasetFR-S1-03Dual stratification? RESOLVEDCompound key, 15 strataFR-S1-04QG-03 train-only recomputation? ACKNOWLEDGEDMinor leakage documented; full fix requires Stage 1 re-runFR-S1-05No SMOTE on has_missing without imputation? RESOLVEDStep 7 imputes before Step 10FR-S1-06CICIDS overflow ? clip not exclude? RESOLVEDStep 6 clips 10 columns; records retainedFR-S1-07Log flag_for_review per split? RESOLVEDLogged in Step 3FR-S1-08Categorical encoding strategy? RESOLVEDFreqEnc + OHE with runtime cardinality decisionFR-S1-09feature_alignment_map.json consumption? RESOLVEDLoaded in Step 1; used in Step 2FR-S1-10Generic exclusion decision? RESOLVED (Stage 1)Handled upstream; 58,871 records excludedFR-S1-11CICIDS duplicate rate documented? RESOLVED10.89% noted in artefact JSON
+6. Detailed Step-by-Step Analysis
+Step 1 - Load & Schema Validation  ? PASS
+All five reference operations are implemented: pd.read_parquet() for each file, schema_version assertion, all-11-metadata-column check, per-dataset record/feature count logging, and loading of both JSON artefacts (feature_alignment_map.json and qg03_replacement_values.json). The assertion messages are descriptive enough to identify the failing dataset if a contract is violated.
+
+Step 2 - Feature Alignment  ? PASS
+The align_features() function correctly pads absent numeric columns with SENTINEL_VALUE (-1.0) and absent categorical columns with SENT_CAT ('__ABSENT__'). After padding, union_features (sorted) is enforced as column order before concatenation, satisfying the deterministic ordering requirement. The 154-column assertion after concatenation acts as a runtime contract check.
+
+Step 3 - Dual-Stratified Train/Test Split  ? PASS
+StratifiedShuffleSplit is used with the compound key master_label + '__' + source_dataset. Parameters match the reference exactly: n_splits=1, test_size=0.20, random_state=42. The split occurs before any fit() call. FR-S1-07 (flag_for_review logging) is satisfied. del unified_df after the split is appropriate memory management.
+
+Step 4 - Categorical Encoding  ? WARN
+The FrequencyEncoder correctly implements the reference design: fit only on non-sentinel training values, __ABSENT__ ? -1.0, unseen test values ? 0.0. The runtime cardinality decision (=10 unique = OHE) is architecturally correct.
+
+Finding CF-S2-01 (MEDIUM): In apply_ohe(), __ABSENT__ rows are given a placeholder value (categories_[col][0]) before OHE transform. Downstream forced-zero masking corrects the output, but the placeholder may temporarily produce a valid OHE vector. While the final result is correct due to the force-zero, the approach is fragile. Use a dedicated sentinel string guaranteed absent from training data instead.
+
+Finding CF-S2-02 (LOW): The reference table marks flag as FrequencyEncoder (11 unique > threshold 10). The notebook determines this at runtime from the training split, which is architecturally correct but should produce an explicit log confirming flag was assigned to freq_cols. Verify after execution.
+
+Step 5 - Sentinel Mask Creation  ? PASS
+build_sentinel_mask() correctly derives absent column indices from feature_lineage (mapping OHE-derived columns to their parent) and per_ds_features from the alignment map. It uses source_dataset metadata - not feature values - to assign True positions. This is precisely the required construction algorithm from the reference. The post-creation verification (checking sentinel values at sentinel positions) adds a useful runtime sanity check.
+
+Step 6 - CICFlowMeter Clipping  ? PASS
+All 10 columns from the reference clip configuration are present in CLIP_CONFIG with correct bounds. The function correctly identifies CICIDS-2017 rows via source_dataset metadata and applies clipping only to those rows. Columns absent from post-encoding features are skipped with a log message. The clip bounds are domain-determined, not learned, so there is no leakage concern.
+
+Step 7 - Imputation  ? PASS
+SimpleImputer(strategy='median') is fitted on X_train_clipped only and applied via transform() to both splits. Post-imputation hard asserts (np.isnan().any() == False) for both train and test are present. The reference note about ~1,086 train / ~272 test affected records is consistent with the 1,358 total NaN in has_missing records.
+
+Step 8 - QG-03 Leakage Documentation  ? PASS
+The step loads qg03_replacement_values.json, logs the leakage warning and quantification (0.002% of CICIDS-2017 values), and asserts np.isinf().any() == False for both splits. If Infinity is found, execution halts with a descriptive error. This fully satisfies the reference requirements for this step.
+
+Step 9 - SentinelAware MinMax Scaling  ? PASS
+The SentinelAwareMinMaxScaler implementation precisely matches the reference pseudocode: fit() excludes sentinel positions per column, uses only finite real values, falls back to identity (min=0, max=1) for all-sentinel columns. transform() clips to [0,1] and zeros all sentinel positions. The scaler is fitted on training data only. Post-scaling assertions verify the [0,1] range and sentinel=0.0 conditions.
+
+Step 10 - SMOTE Oversampling  ? WARN
+SMOTE is applied after scaling (correct), to train only (correct), with sampling_strategy={3: 100000, 4: 25000} (matches reference exactly), k_neighbors=5, random_state=42, n_jobs=-1 (all correct). The sentinel mask extension for synthetic samples assigns the UNSW-NB15 pattern as the majority-source pattern for both EXPLOIT and MALWARE synthetics, consistent with the reference rationale.
+
+Finding CF-S2-03 (LOW): The UNSW-NB15 sentinel pattern is obtained from meta_train.index[0] - a single data row. All UNSW-NB15 rows share the same pattern today, so this is logically correct. For robustness, derive the pattern from feature_alignment_map.json directly to avoid any future dependency on data ordering.
+
+Step 11 - Output Validation & Save  ? PASS
+All 8 validation assertions from the reference are implemented: (1) shape consistency, (2) sentinel mask shape, (3) non-sentinel value range [0,1], (4) no NaN, (5) no Inf, (6) sentinel positions = 0.0, (7) valid label values {0,1,2,3,4}, (8) pca_applied = False. All 8 output artefacts are saved. The stage2_preprocessing_artefacts.json schema matches the reference exactly including scaler_col_min, scaler_col_max, smote_targets, qg03_leakage_acknowledged, and pca_applied.
+
+Finding CF-S2-04 (LOW): freq_maps in stage2_preprocessing_artefacts.json do not include an explicit key documenting the __ABSENT__ ? -1.0 / unseen ? 0.0 sentinel rule. Add a 'freq_sentinel_rule' key to the artefact for production inference clarity.
+
+7. Positive Highlights
+The following design elements are particularly well-implemented:
+• Strict leakage-prevention ordering: The train/test split occurs at Step 3 with no preceding fit() calls. Every subsequent encoder, imputer, and scaler is fitted exclusively on training data and applied via transform() to the test set.
+• SentinelAwareMinMaxScaler precision: The custom scaler implementation exactly matches the reference pseudocode, correctly handling all-sentinel columns, the [0,1] clip, and post-scale zeroing.
+• Feature lineage propagation: OHE-derived column names are mapped back to their parent columns via feature_lineage, enabling the sentinel mask to correctly handle expanded columns - a subtle but critical detail.
+• Runtime cardinality decision for encoding: Rather than hardcoding which columns get OHE vs FrequencyEncoder, the notebook counts real unique values from the training split at runtime, making the pipeline robust to dataset version changes.
+• Atomic artefact saving: All 8 artefacts are written after all validation assertions pass, satisfying the atomic-write requirement.
+• Comprehensive Step 11 assertions: All 8 reference assertions are present with descriptive failure messages, including the PCA=False check.
+
+8. Recommended Fixes Before Stage 3 Handoff
+FindingPriorityActionCF-S2-01MEDIUMIn apply_ohe(), replace categories_[col][0] placeholder with a guaranteed-absent string like '__OHE_ABSENT__'. Verify the forced-zero masking still applies correctly to sentinel rows.CF-S2-02LOWAfter runtime encoding assignment, add an assertion: assert 'flag' in freq_cols, 'flag should be FrequencyEncoded (11 unique > threshold 10)'. Log ohe_cols and freq_cols at INFO level.CF-S2-03LOWDerive the UNSW-NB15 sentinel pattern from alignment_map['per_dataset_features']['unsw_nb15'] rather than reading from a data row index.CF-S2-04LOWAdd 'freq_sentinel_rule': {'__ABSENT__': -1.0, 'unseen': 0.0} to stage2_preprocessing_artefacts.json for production inference documentation.
+9. Verdict
+Stage 2 notebook is architecturally sound and ready for Stage 3 handoff, subject to resolution of CF-S2-01 (MEDIUM). All critical leakage-prevention requirements are met. The 11-step pipeline order is correct. All 8 output artefacts are produced and validated. CF-S2-02, CF-S2-03, and CF-S2-04 are recommended improvements for robustness and production-readiness, but do not block Stage 3 commencement.
+Document prepared: March 2026 | Evaluation scope: Stage 2 only | Reference: Stage2_Technical_Reference.docx v1.0
