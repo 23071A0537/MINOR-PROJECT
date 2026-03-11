@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-03-11T02:32:41.807928+00:00",
+  "WARNING": "LEAKAGE VECTOR \u2014 These replacement values were computed on the FULL dataset (train+test combined). Stage 2 MUST recompute percentiles on train-only split before applying to test data. See VC-4.4 / MF-07.",
+  "computation_scope": "full_dataset",
+  "leakage_acknowledged": true,
+  "recompute_required_by": "Stage 2",
+  "structural_fix_available": "apply_quality_gate() accepts inf_replacement_values parameter. Stage 2 should compute train-only p99 values and pass them to eliminate leakage entirely.",
+  "nsl_kdd": {},
+  "unsw_nb15": {},
+  "cicids2017": {
+    "Flow Bytes/s": {
+      "count": 1509,
+      "replacement": 12333333.3333333
+    },
+    "Flow Packets/s": {
+      "count": 2867,
+      "replacement": 2000000.0
+    }
+  }
+}

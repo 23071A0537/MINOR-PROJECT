@@ -1,0 +1,302 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-11T02:32:41.807928+00:00",
+  "master_labels": [
+    "NORMALL",
+    "DoSD",
+    "PROBE",
+    "EXPLOIT",
+    "MALWARE"
+  ],
+  "nsl_kdd": {
+    "normal": {
+      "master_label": "NORMALL",
+      "confidence": "High"
+    },
+    "back": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "land": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "neptune": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "pod": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "smurf": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "teardrop": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "apache2": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "udpstorm": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "processtable": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "mailbomb": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "ipsweep": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "nmap": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "portsweep": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "satan": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "mscan": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "saint": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "ftp_write": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "guess_passwd": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "imap": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "multihop": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "phf": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "spy": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "warezclient": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "warezmaster": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "sendmail": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "named": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "snmpgetattack": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "snmpguess": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "xlock": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "xsnoop": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "worm": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "buffer_overflow": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "loadmodule": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "perl": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "rootkit": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "httptunnel": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "ps": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "sqlattack": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "xterm": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    }
+  },
+  "unsw_nb15": {
+    "": {
+      "master_label": "NORMALL",
+      "confidence": "High",
+      "note": "Empty string from fillna('') on NaN attack_cat; these are label==0 normal traffic in the Kaggle pre-split version"
+    },
+    "Normal": {
+      "master_label": "NORMALL",
+      "confidence": "High"
+    },
+    "DoS": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "Reconnaissance": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "Fuzzers": {
+      "master_label": "PROBE",
+      "confidence": "Medium",
+      "decision": "D5-1"
+    },
+    "Analysis": {
+      "master_label": "PROBE",
+      "confidence": "Medium",
+      "decision": "D5-2"
+    },
+    "Exploits": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "Generic": {
+      "action": "EXCLUDE",
+      "decision": "D5-6",
+      "reason": "~58,871 samples; no agreed real-world threat analogue; excluded per D5-6"
+    },
+    "Backdoors": {
+      "master_label": "MALWARE",
+      "confidence": "High"
+    },
+    "Shellcode": {
+      "master_label": "MALWARE",
+      "confidence": "High"
+    },
+    "Worms": {
+      "master_label": "MALWARE",
+      "confidence": "High"
+    }
+  },
+  "cicids2017": {
+    "BENIGN": {
+      "master_label": "NORMALL",
+      "confidence": "High"
+    },
+    "DoS slowloris": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "DoS Slowhttptest": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "DoS Hulk": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "DoS GoldenEye": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "DDoS": {
+      "master_label": "DoSD",
+      "confidence": "High"
+    },
+    "PortScan": {
+      "master_label": "PROBE",
+      "confidence": "High"
+    },
+    "FTP-Patator": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "SSH-Patator": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "Web Attack - Brute Force": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "Web Attack - XSS": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "Web Attack - Sql Injection": {
+      "master_label": "EXPLOIT",
+      "confidence": "High"
+    },
+    "Heartbleed": {
+      "master_label": "EXPLOIT",
+      "confidence": "High",
+      "decision": "D5-5"
+    },
+    "Infiltration": {
+      "action": "EXCLUDE",
+      "decision": "D5-3",
+      "reason": "~36 samples; statistically unreliable"
+    },
+    "Bot": {
+      "master_label": "MALWARE",
+      "confidence": "High"
+    }
+  },
+  "ambiguity_decisions": {
+    "D5-1": "Fuzzers (UNSW-NB15) -> PROBE. Fuzzing is primarily reconnaissance behaviour.",
+    "D5-2": "Analysis (UNSW-NB15) -> PROBE. Includes port/service enumeration.",
+    "D5-3": "Infiltration (CICIDS-2017) -> EXCLUDED. ~36 samples, statistically unreliable.",
+    "D5-4": "Generic (UNSW-NB15) \u2014 SUPERSEDED by D5-6. Provisional EXPLOIT/Low mapping removed.",
+    "D5-5": "Heartbleed (CICIDS-2017) -> EXPLOIT. Memory disclosure CVE, not malware.",
+    "D5-6": "Generic (UNSW-NB15) -> EXCLUDED. ~58,871 records (22.8% of UNSW-NB15). No agreed real-world threat analogue \u2014 the UNSW-NB15 'Generic' category uses crafted packets that do not correspond to a distinct attack class in any recognised taxonomy. Excluding avoids injecting 22.8% low-quality signal into the EXPLOIT class."
+  },
+  "data_handling_notes": {
+    "unsw_empty_attack_cat": "UNSW-NB15 Kaggle pre-split: rows with NaN attack_cat have label==0 (normal). fillna('') converts these to empty string. The '' key maps to NORMALL. This is intentional and semantically correct.",
+    "infiltration_excluded": "CICIDS-2017 Infiltration excluded per D5-3 (~36 samples). Records are removed after taxonomy mapping, not quarantined.",
+    "generic_excluded": "UNSW-NB15 Generic excluded per D5-6 (~58,871 samples, 22.8% of UNSW-NB15). Records are removed after taxonomy mapping. UNSW-NB15 output: ~257,673 -> ~198,802 records. Combined corpus: ~2,927,906 -> ~2,869,035 records.",
+    "MF-NEW-04_cicids_duplicates": "CICIDS-2017 has ~9.66% duplicate records \u2014 typical CICFlowMeter regeneration artefact. These are removed by QG-01. Effective yield is ~90.3% of raw data. Not a data error.",
+    "MF-NEW-01_cicids_bounds_violation": "~98-100% of CICIDS-2017 records flagged bounds_violation=True due to CICFlowMeter integer overflow (e.g. Fwd Header Length, Init_Win_bytes_forward > 2^31). Stage 2 MUST clip these rather than exclude records."
+  }
+}

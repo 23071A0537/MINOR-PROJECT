@@ -1,0 +1,42 @@
+# ── Dedicated ignore folder ──────────────────────────────────────────
+ignore/*
+!ignore/.gitkeep
+
+# ── Sensitive credentials ─────────────────────────────────────────────
+kaggle.json
+
+# ── Datasets (large files) ────────────────────────────────────────────
+DataSets/
+
+# ── Python ────────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Jupyter ───────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Data & model artifacts ────────────────────────────────────────────
+*.csv
+*.parquet
+*.zip
+*.h5
+*.pkl
+*.joblib
+*.npy
+*.npz
+
+# ── OS / editor ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
