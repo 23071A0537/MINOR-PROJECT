@@ -1,0 +1,408 @@
+EXPLAINABLE HYBRID
+QUANTUM-CLASSICAL NIDS
+
+
+
+STAGE 2
+Classical Preprocessing Pipeline
+Technical Design & Implementation Reference
+Version 1.0  |  March 2026
+
+
+Table of Contents
+Table of Contents	2
+1. Executive Summary	4
+2. Inputs and Dependencies	5
+2.1  Stage 1 Parquet Outputs	5
+2.2  Stage 1 JSON Artefacts	5
+2.3  Label Encoding	5
+3. Pipeline Architecture Overview	6
+4. Step-by-Step Design Reference	7
+Step 1 - Load Stage 1 Outputs and Schema Validation	7
+Purpose	7
+Operations	7
+Mandatory Metadata Columns (11 Fields)	7
+Step 2 - Feature Alignment	7
+Purpose	8
+Sentinel Policy (D7-1)	8
+Absent Feature Counts	8
+Implementation Note: Column Order	8
+Step 3 - Dual-Stratified Train / Test Split	8
+Purpose	8
+Stratification Strategy	9
+Parameters	9
+Expected Split Sizes (Pre-SMOTE)	9
+Step 4 - Categorical Encoding	9
+Purpose	9
+Cardinality-Based Strategy	9
+FrequencyEncoder Design	10
+OHE Design	10
+Post-Encoding Column Count	10
+Step 5 - Sentinel Mask Creation	11
+Purpose	11
+Construction Algorithm	11
+Usage Across the Pipeline	11
+Step 6 - CICFlowMeter Integer-Overflow Column Clipping	11
+Background	11
+Strategy: Clip, Do Not Exclude	12
+Clip Configuration	12
+Step 7 - Imputation for True Missing Values	12
+Context	12
+Imputation Design	13
+Step 8 - QG-03 Leakage Documentation	13
+Background	13
+Step 8 Operations	13
+Step 9 - Sentinel-Aware MinMax Scaling	14
+Purpose	14
+Why Standard MinMaxScaler Fails Here	14
+SentinelAwareMinMaxScaler Design	14
+Post-Scaling State	14
+Step 10 - SMOTE Oversampling	15
+Purpose	15
+SMOTE vs Other Techniques	15
+Application Order	15
+Configuration	15
+SMOTE Parameters	15
+Sentinel Mask for Synthetic Samples	16
+Post-SMOTE Training Distribution	16
+Step 11 - Output Validation and Save	17
+Validation Assertions	17
+5. Output Artefacts	18
+5.1  stage2_feature_names.json Schema	18
+5.2  stage2_preprocessing_artefacts.json Schema	18
+6. Key Design Decisions and Rationale	20
+DD-1: Frequency Encoding over Target Encoding for High-Cardinality Columns	20
+DD-2: Sentinel Mask as an Auxiliary Signal rather than Feature Deletion	20
+DD-3: MinMax Scaling over StandardScaler (Z-score)	20
+DD-4: SMOTE in Feature Space After Scaling	20
+DD-5: Generic Records Excluded from EXPLOIT Class	21
+7. Pipeline Constants	22
+8. Stage 3 Forward Requirements	23
+9. Known Limitations and Risk Register	24
+10. Version Control Checklist	25
+Appendix A: Data Flow Summary	26
+Appendix B: Cross-Reference to Stage 1 Forward Requirements	26
+
+
+
+1. Executive Summary
+
+Stage 2 is the classical preprocessing stage of the Explainable Hybrid Quantum-Classical Network Intrusion Detection System (NIDS). It bridges Stage 1 (raw data ingestion and taxonomy mapping) with Stage 3 (Variational Autoencoder compression) by transforming three structurally different network traffic datasets into a single, clean, unified, numerically normalised feature matrix suitable for deep learning and quantum computation.
+
+The pipeline executes eleven ordered steps, each with a strict data-leakage-prevention requirement: no statistical parameter - encoder frequency, scaler minimum, scaler maximum, imputation median - is ever computed on test data or on the full pre-split corpus (with the sole documented exception of two infinity replacement values carried forward from Stage 1, which are explicitly acknowledged and traceable).
+
+PropertyValueInput datasetsNSL-KDD, UNSW-NB15, CICIDS-2017 (Stage 1 Parquet outputs)Input records2,869,035 (after Stage 1 Generic exclusion: -58,871)Pre-encoding features154 (Stage 1 union: 36 NSL-KDD + 42 UNSW-NB15 + 77 CICIDS-2017)Post-encoding features154 + OHE expansion (determined at runtime; saved to stage2_feature_names.json)Split ratio80% train / 20% test - dual stratified on master_label × source_datasetScalingSentinelAwareMinMaxScaler ? [0.0, 1.0] on non-sentinel values; sentinel ? 0.0SMOTE targetsEXPLOIT ? 100,000 | MALWARE ? 25,000 (train only)Output artefacts8 files: X_train, X_test, y_train, y_test, sentinel masks (×2), feature names, preprocessing artefactsPCA appliedNEVER - explicitly verified and recorded in output artefact
+
+2. Inputs and Dependencies
+
+2.1  Stage 1 Parquet Outputs
+Stage 2 reads three Parquet files produced by Stage 1. Each file contains both raw feature columns and eleven mandatory metadata columns. The schema version embedded in each file is validated on load - a mismatch raises an error before any processing begins.
+
+FileRecordsFeature colsNotesnsl_kdd_stage1_output.parquet147,90736No NaN, no Inf, no negativesunsw_nb15_stage1_output.parquet257,67342Generic excluded. attack_cat encoded to master_label.cicids2017_stage1_output.parquet2,522,326771,358 NaN (Flow Bytes/s). CICFlowMeter overflow columns present.COMBINED2,927,906154 unionAfter Generic exclusion: 2,869,035 records
+2.2  Stage 1 JSON Artefacts
+Two JSON artefacts from Stage 1 are consumed by Stage 2:
+• 
+• feature_alignment_map.json - 154 pre-encoding feature columns and sentinel policy
+• qg03_replacement_values.json - Documents the two Infinity replacement values (Flow Bytes/s, Flow Packets/s) computed on the full CICIDS-2017 dataset in Stage 1. Carried as acknowledged leakage.
+
+2.3  Label Encoding
+All master labels are mapped to integer class indices for compatibility with sklearn, PyTorch, and Qiskit downstream:
+
+Master LabelIntegerThreat CategoryNORMALL0Benign trafficDoSD1Denial of ServicePROBE2ReconnaissanceEXPLOIT3Exploitation attemptsMALWARE4Malware / backdoors
+
+3. Pipeline Architecture Overview
+
+The eleven pipeline steps are ordered to guarantee strict leakage prevention. The critical constraint is that no fitting operation - encoding, imputation, or scaling - can observe test data.
+
+StepNameOperationOutput1Load & ValidateRead Parquet files, validate schema_version, assert 11 meta cols3 DataFrames2Feature AlignmentPad absent columns with -1.0 (numeric) or __ABSENT__ (categorical), concat1 unified DataFrame, 154 columns3Train/Test SplitStratifiedShuffleSplit on master_label × source_dataset (80/20)X_train_raw, X_test_raw, y_train, y_test4Categorical EncodingFrequencyEncoder (high-card.) + OHE (low-card.). Fit on TRAIN only.X_train_enc, X_test_enc (all numeric)5Sentinel MaskBoolean N×F matrix: True = feature absent for that record's datasetsentinel_mask_train, sentinel_mask_test6CICFlowMeter ClippingClip integer overflow columns to valid domain bounds. CICIDS rows only.X_train_clipped, X_test_clipped7ImputationMedian imputation for 1,358 true NaN values. Fit on TRAIN only.X_train_imputed, X_test_imputed (no NaN)8QG-03 DocumentationVerify no remaining Inf. Document acknowledged Stage 1 leakage.Verification log9MinMax ScalingSentinelAwareMinMaxScaler ? [0,1]. Fit on train non-sentinel only. Zero sentinels.X_train_scaled, X_test_scaled10SMOTEOversample EXPLOIT ? 100k, MALWARE ? 25k. Train only.X_train_smote, y_train_smote, sentinel_mask_smote11Validate & SaveAssert shapes, value ranges, NaN/Inf, sentinel positions. Save 8 artefacts.8 output Parquet/JSON files
+Critical Ordering Constraint
+Steps 1-3 must complete before any fitting operation begins. The train/test split (Step 3) acts as a firewall - everything from Step 4 onwards fits only on training data.
+Violating this ordering constitutes data leakage and invalidates all downstream evaluation metrics.
+
+4. Step-by-Step Design Reference
+
+Step 1 - Load Stage 1 Outputs and Schema Validation
+Purpose
+Reads the three Stage 1 Parquet files and verifies that each satisfies the Stage 1 output schema contract before any further processing. This is the provenance checkpoint: if a Stage 1 output is malformed or from the wrong schema version, Stage 2 fails immediately with a descriptive error rather than silently producing incorrect outputs.
+Operations
+1. Read each Parquet file with pd.read_parquet().
+2. Assert schema_version column exists and equals '1.0'.
+3. Assert all 11 mandatory metadata columns are present.
+4. Log record count, feature column count, and schema version per dataset.
+5. Load feature_alignment_map.json and qg03_replacement_values.json.
+
+Mandatory Metadata Columns (11 Fields)
+ColumnTypeDescriptionsource_datasetstringOrigin: NSL-KDD | UNSW-NB15 | CICIDS-2017original_labelstringRaw label from the source dataset before taxonomy mappingmaster_labelstringUnified 5-class label: NORMALL, DoSD, PROBE, EXPLOIT, MALWAREmapping_confidencestringHigh | Medium | Low - confidence of the taxonomy mapping decisionflag_for_reviewbooleanTrue for any record requiring team review (all False after Generic exclusion)quality_passbooleanTrue if record passed all 6 Stage 1 quality gatesquality_flagsJSON stringList of quality gate codes triggered (e.g. ["QG-03", "QG-05"])has_missingbooleanTrue for records with true NaN values (1,358 CICIDS-2017 records)bounds_violationbooleanTrue if any physical-bounds-violating value detected by QG-05ingestion_timestampISO 8601 stringUTC timestamp of Stage 1 ingestion runschema_versionstringAlways '1.0' - validated on load in Stage 2
+Step 2 - Feature Alignment
+Purpose
+The three datasets have different feature sets. NSL-KDD captures network connection metadata (36 features), UNSW-NB15 captures packet-level statistics (42 features), and CICIDS-2017 captures flow-level CICFlowMeter statistics (77 features). Stage 2 must unify these into a single feature matrix where every record has exactly the same columns.
+
+The alignment strategy uses sentinel values to represent 'this feature was not measured for this dataset' - a fundamentally different signal from 'this feature has a value of zero'. Using different sentinel values by type (numeric vs categorical) prevents confusion during encoding.
+
+Sentinel Policy (D7-1)
+Feature TypeSentinel ValuePost-scaling ValueRationaleNumeric-1.00.0Distinguishable from valid values which are always = 0 in network traffic. Zeroed after scaling.Categorical (string)'__ABSENT__'0.0 (all-zeros OHE or freq=0)String sentinel prevents confusion with real category values. Maps to zero vector after encoding.
+Absent Feature Counts
+DatasetOwn FeaturesAbsent FeaturesSentinel Rate per RecordNSL-KDD36 of 15411876.6% of positions are sentinelUNSW-NB1542 of 15411272.7% of positions are sentinelCICIDS-201777 of 1547750.0% of positions are sentinel
+Why the high sentinel rates are acceptable
+The sentinel mask (Step 5) explicitly tracks which positions are absent. The VAE reconstruction loss in Stage 3 is masked so absent feature positions contribute zero weight.
+Post-scaling, absent positions are exactly 0.0 - the model receives a clean signal and the sentinel mask provides the auxiliary information needed to distinguish zero-valued real features from absent ones.
+Implementation Note: Column Order
+After padding, all three DataFrames are forced to the same sorted column order before concatenation. This deterministic ordering is preserved through the entire Stage 2 pipeline and written to stage2_feature_names.json. Every downstream stage (Stage 3 VAE, Stage 5 Ensemble) must read this file rather than assuming a column order.
+
+Step 3 - Dual-Stratified Train / Test Split
+Purpose
+The train/test split must occur before any encoder or scaler is fitted. This is the most important leakage-prevention step in the pipeline.
+
+Stratification Strategy
+A simple stratification on master_label alone is insufficient because the three datasets have very different class distributions. For example, CICIDS-2017 has no MALWARE records from NSL-KDD, and UNSW-NB15 has a much larger PROBE fraction than CICIDS-2017. If the test set happened to draw disproportionately from one dataset, the evaluation metrics would not reflect cross-dataset generalisation.
+
+The solution is a compound stratification key: master_label concatenated with source_dataset (e.g. 'MALWARE__UNSW-NB15', 'DoSD__CICIDS-2017'). This creates 15 strata and ensures that both the class distribution and the dataset provenance are proportionally preserved in both splits.
+
+Parameters
+ParameterValueSplittersklearn.model_selection.StratifiedShuffleSplitTest size0.20 (20%)Train size0.80 (80%)Random state42 (fixed for reproducibility)Stratify onmaster_label + '__' + source_datasetNumber of strata15 (5 labels × 3 datasets, minus MALWARE which is absent from NSL-KDD)
+Expected Split Sizes (Pre-SMOTE)
+LabelCombinedTrain (~80%)Test (~20%)Train %NORMALL2,266,451~2,133,161~533,29077.41%DoSD391,102~312,882~78,22013.36%PROBE145,683~116,546~29,1374.98%EXPLOIT59,832~47,866~11,9662.04%MALWARE5,967~4,774~1,1930.20%TOTAL2,869,035~2,615,229~653,806100%
+Step 4 - Categorical Encoding
+Purpose
+The three datasets contain several categorical (string) columns that must be converted to numeric values before scaling and model training. Two encoding strategies are applied depending on column cardinality, with all encoders fitted exclusively on the training split.
+
+Cardinality-Based Strategy
+A threshold of 10 unique real (non-sentinel) values determines the encoding method. Columns at or below the threshold use One-Hot Encoding (OHE); columns above use Frequency Encoding.
+
+ColumnDataset(s)Real Unique ValuesMethodRationaleprotocol_typeNSL-KDD3 (tcp, udp, icmp)OHELow-cardinality, interpretableflagNSL-KDD11 TCP flag statesFrequencyModerate cardinality; OHE would add 11 columns for a single datasetserviceNSL-KDD + UNSW-NB15~80 combinedFrequencyHigh cardinality; OHE would add ~80 sparse columnsprotoUNSW-NB15~130FrequencyVery high cardinality; OHE impracticalstateUNSW-NB15~10OHE or Frequency**Determined at runtime based on actual cardinality
+FrequencyEncoder Design
+The custom FrequencyEncoder maps each category value to its relative frequency in the training set. This preserves ordinal information (common categories get higher values) without the dimensionality explosion of OHE, and handles unseen test values gracefully.
+
+# Frequency encoding logic:
+for col in freq_cols:
+    real_vals = train_df.loc[train_df[col] != '__ABSENT__', col]
+    freq_map  = real_vals.value_counts(normalize=True).to_dict()
+ 
+# Transform:
+#   __ABSENT__  ? SENTINEL_VALUE (-1.0)
+#   unseen value ? 0.0 (effectively absent from training distribution)
+#   known value  ? frequency in [0.0, 1.0]
+OHE Design
+sklearn's OneHotEncoder is fitted on non-sentinel training values. The handle_unknown='ignore' parameter ensures unseen test values produce an all-zeros row. Sentinel (__ABSENT__) rows are forced to all-zeros independently of the OHE output, and the feature lineage dictionary maps every OHE-derived column back to its parent so the sentinel mask can be propagated correctly in Step 5.
+
+Post-Encoding Column Count
+The exact post-encoding column count depends on the runtime cardinality of categorical columns in the training split. It is always = 154 (the pre-encoding union). The authoritative count is written to stage2_feature_names.json and must be read by Stage 3 to configure the VAE input layer. It must not be hardcoded in any downstream stage.
+
+Step 5 - Sentinel Mask Creation
+Purpose
+The sentinel mask is a boolean array of shape (N × F) where N is the number of records and F is the number of post-encoding features. A value of True at position [i, j] means that feature j was absent for record i because record i comes from a source dataset that does not include that feature.
+
+Critical: Must be created BEFORE scaling (D7-1)
+If the sentinel mask were created after scaling, the MinMaxScaler would have already used the -1.0 sentinel values in its min/max computation, distorting the scaling of real values.
+The mask is built from metadata (source_dataset column) and the feature lineage dictionary - no feature values are inspected.
+Construction Algorithm
+6. For each dataset (NSL-KDD, UNSW-NB15, CICIDS-2017), compute the set of post-encoding columns whose pre-encoding parent was NOT present in that dataset's original feature set.
+7. For all records from that dataset, set sentinel_mask[i, j] = True for those column indices.
+8. Records not from any dataset default to False (no sentinel positions - this should never occur in practice).
+
+Usage Across the Pipeline
+StageHow Sentinel Mask is UsedEffectStep 9 (Scaling)Exclude sentinel positions from min/max computationScaler statistics reflect only real feature valuesStep 9 (Post-scale)Zero out sentinel positions after scalingAbsent features become 0.0; real features in [0.0, 1.0]Stage 3 (VAE)Mask the per-feature reconstruction lossVAE does not penalise reconstruction of absent featuresStage 5 (Ensemble)Passed to XGBoost and RF as auxiliary feature or ignoredTree models handle 0.0 absent naturally; mask available for analysis
+Step 6 - CICFlowMeter Integer-Overflow Column Clipping
+Background
+CICFlowMeter, the tool used to generate CICIDS-2017, has a known integer overflow bug affecting several columns. When a computed value overflows a signed 32-bit integer, it wraps to a large negative number. For example, the Fwd Header Length column has a minimum value of approximately -3.22 × 10¹° in the raw data, which is physically impossible for a TCP header length field.
+
+Stage 1 flagged these records with bounds_violation=True (50.7% of all CICIDS-2017 records) but did not modify the values, following the Stage 1 principle of raw feature preservation. Stage 2 is responsible for correcting these values before scaling.
+
+Strategy: Clip, Do Not Exclude
+Records are NOT excluded. The overflow is an instrument artefact, not a data collection error. The affected records are legitimate network flows - only specific computed columns contain invalid values. Excluding 50.7% of CICIDS-2017 (over 1.27 million records) would severely damage the representativeness of the training corpus.
+
+Clip Configuration
+ColumnLower ClipUpper ClipRationaleFwd Header Length0INT32_MAX (2,147,483,647)Header length cannot be negativeBwd Header Length0INT32_MAXHeader length cannot be negativeFwd Header Length.10INT32_MAXCICFlowMeter duplicate columnmin_seg_size_forward0INT32_MAXSegment size cannot be negativeInit_Win_bytes_forward-165,535 (TCP max)-1 is valid CICFlowMeter sentinel for 'no TCP window'; 65,535 is max TCP windowInit_Win_bytes_backward-165,535Same as above for backward directionFlow Duration0No upper clipNegative duration is physically impossibleFlow Bytes/s0No upper clipInf already replaced in Stage 1 QG-03Flow Packets/s0No upper clipInf already replaced in Stage 1 QG-03Flow IAT Mean0No upper clipMean inter-arrival time must be = 0
+Note: Clipping applied to CICIDS-2017 rows only
+The clipping logic identifies rows by source_dataset metadata and applies corrections only to CICIDS-2017 records. NSL-KDD and UNSW-NB15 records are not touched.
+The clip bounds are domain-determined (physical constraints of TCP/IP), not learned from data, so there is no leakage concern from applying the same bounds to both train and test.
+Step 7 - Imputation for True Missing Values
+Context
+After feature alignment and sentinel padding, the only remaining NaN values are 1,358 CICIDS-2017 records where the Flow Bytes/s column is genuinely missing (not an overflow, not a sentinel). These are records where CICFlowMeter failed to compute a byte rate, typically for zero-duration flows.
+
+These records are identified in Stage 1 metadata via has_missing=True. Stage 2 Forward Requirement #5 from Stage 1 specifies that these records must not have SMOTE applied without prior imputation.
+
+Imputation Design
+PropertyValueStrategyMedian imputation (SimpleImputer, strategy='median')Fit onTraining set only - prevents test-set median from leaking into imputed valuesApplied toTrain and test (transform only for test)Affected records~1,086 train (1,358 × 0.80) + ~272 test (1,358 × 0.20)Post-imputation NaN checkHard assert: np.isnan(X).any() must be False for both train and test
+Median is chosen over mean because Flow Bytes/s has a highly right-skewed distribution (large outliers from high-throughput flows). The median is a more robust central tendency estimate and will not be distorted by the extreme values observed in DDoS attack flows.
+
+Step 8 - QG-03 Leakage Documentation
+Background
+In Stage 1, the Infinity containment gate (QG-03) replaced infinite values in Flow Bytes/s and Flow Packets/s with 99th percentile values computed on the full CICIDS-2017 dataset. Since Stage 1 does not own the train/test split, these replacement values necessarily include information from what will become the test set.
+
+Acknowledged Data Leakage Vector
+The QG-03 replacement values for Flow Bytes/s (? 12,333,333) and Flow Packets/s (? 2,000,000) were computed on the full CICIDS-2017 dataset (2,830,743 records including Wednesday traffic).
+This constitutes a minor data leakage: the test set Infinity values were replaced using a statistic that includes test-set records.
+The leakage is quantified as affecting 1,509 + 2,867 = 4,376 values out of 2,830,743 × 77 = 217,967,011 total CICIDS-2017 values (0.002%).
+The structural fix (apply_quality_gate() accepts inf_replacement_values parameter) means this can be eliminated entirely by computing train-only p99 after Stage 2 split and re-running Stage 1. This is recommended for the camera-ready paper version.
+Step 8 Operations
+• Load qg03_replacement_values.json and log the leakage acknowledgement.
+• Verify that no Infinity values remain in either the train or test split (assert np.isinf(X).any() == False).
+• If Infinity is found: halt execution with a descriptive error - this would indicate the Stage 1 QG-03 was not applied or the data was loaded incorrectly.
+
+Step 9 - Sentinel-Aware MinMax Scaling
+Purpose
+All feature values must be normalised to [0.0, 1.0] before being fed to the Variational Autoencoder (Stage 3). The VAE bottleneck output is subsequently scaled to [0, p] for quantum angle encoding, so the model is sensitive to the absolute scale of input values.
+
+Why Standard MinMaxScaler Fails Here
+The standard sklearn MinMaxScaler computes per-column minimum and maximum over all values. If sentinel values (-1.0) are included, the per-column minimum becomes -1.0 for every column that has any sentinel rows, causing the scaler to stretch the entire feature range from [-1, max_real] to [0, 1]. This would compress all real values into a sub-range of [0, 1] and would make the scaled outputs incomparable across datasets.
+
+SentinelAwareMinMaxScaler Design
+class SentinelAwareMinMaxScaler:
+    def fit(self, X, sentinel_mask):
+        for j in range(X.shape[1]):
+            real_vals = X[~sentinel_mask[:, j], j]  # exclude sentinel rows
+            real_vals = real_vals[np.isfinite(real_vals)]
+            if len(real_vals) > 0:
+                self.col_min_[j] = real_vals.min()
+                self.col_max_[j] = real_vals.max()
+            # else: all-sentinel column ? identity (min=0, max=1)
+ 
+    def transform(self, X):
+        scale = np.where(col_max > col_min, col_max - col_min, 1.0)
+        X_scaled = (X - col_min) / scale
+        return np.clip(X_scaled, 0.0, 1.0).astype(np.float32)
+ 
+# After transform: zero out sentinel positions
+X_scaled[sentinel_mask] = 0.0
+Post-Scaling State
+Position TypeScaled ValueMeaningReal feature, present in dataset[0.0, 1.0]Normalised feature value; 0.0 = minimum, 1.0 = maximum seen in trainingAbsent feature (sentinel)0.0 (forced)Feature not measured for this dataset; sentinel mask = TrueReal feature value = 00.0 (natural)Feature present and genuinely zero; sentinel mask = False
+Note on 0.0 Ambiguity
+Both 'feature is absent' and 'feature value is zero' produce 0.0 after scaling. The sentinel mask is the only way to distinguish them.
+Stage 3 (VAE) receives both the scaled feature array and the sentinel mask. The reconstruction loss is weighted by (1 - sentinel_mask) so the VAE only learns from real feature values.
+Step 10 - SMOTE Oversampling
+Purpose
+Two classes are significantly underrepresented in the training set after the generic records exclusion: EXPLOIT (~47,866 samples, 2.04%) and MALWARE (~4,774 samples, 0.20%). Without oversampling, the classifier will be strongly biased towards the majority class (NORMALL at 77.41%) and will have poor sensitivity for the threat classes that matter most operationally.
+
+SMOTE vs Other Techniques
+Synthetic Minority Oversampling Technique (SMOTE) was chosen over simple duplication because duplicated samples do not add information - they merely increase the loss weight of existing samples without helping the model generalise. SMOTE generates interpolated synthetic samples between existing minority-class records in feature space, improving decision boundary learning for minority classes.
+
+ADASYN (Adaptive Synthetic Sampling) was considered but rejected because it focuses synthesis on hard-to-classify boundary samples, which would risk generating synthetic MALWARE samples close to the NORMALL decision boundary - potentially teaching the model incorrect patterns for the most security-sensitive class.
+
+Application Order
+SMOTE is applied AFTER scaling. This is intentional: synthetic sample generation works in the normalised [0, 1] feature space, which means nearest-neighbour distance calculations are computed on comparable scales across all features. Applying SMOTE before scaling would cause features with large raw ranges (e.g. src_bytes in NSL-KDD, up to 1.38 × 10?) to dominate nearest-neighbour calculations.
+
+Configuration
+ClassPre-SMOTEPost-SMOTE TargetReasoningEXPLOIT (3)~47,866100,000Brings to ~3.3% - realistic threat class representation. Sources: UNSW-NB15 Exploits + NSL-KDD R2L/U2R.MALWARE (4)~4,77425,000Brings to ~0.8% - enough for stable training. All from UNSW-NB15 (Backdoors, Shellcode, Worms).NORMALL (0)~2,133,161UnchangedMajority class - no oversampling needed.DoSD (1)~312,882UnchangedAlready well-represented at 13.36%.PROBE (2)~116,546UnchangedAdequately represented at 4.98%.
+SMOTE Parameters
+ParameterValue / Notesk_neighbors5 - default; sufficient for both EXPLOIT and MALWARE class sizessampling_strategyDict: {3: 100000, 4: 25000} - specifies exact counts, not ratiosrandom_state42 - fixed for reproducibilityn_jobs-1 - use all available CPU coresApplied toTrain set only. Test set is never touched by SMOTE.
+Sentinel Mask for Synthetic Samples
+SMOTE-generated synthetic samples do not come from any real source dataset, so they have no inherent sentinel mask. Two observations motivate the assignment strategy used:
+• All MALWARE samples originate exclusively from UNSW-NB15 (Backdoors, Shellcode, Worms). All synthetic MALWARE samples receive the UNSW-NB15 sentinel pattern (112 absent positions, 42 real positions).
+• EXPLOIT samples are primarily from UNSW-NB15 (~103,396 records) with a smaller contribution from NSL-KDD (~4,001 records) and CICIDS-2017 (~11,306 records). Synthetic EXPLOIT samples receive the UNSW-NB15 sentinel pattern as the majority-source pattern.
+
+This assignment is an approximation. Because absent feature positions are already 0.0 after scaling, and SMOTE interpolation between two same-dataset records naturally produces 0.0 for absent positions, the practical impact of this approximation is minimal. The Stage 3 VAE forward requirement notes that training the VAE only on real (non-synthetic) samples is an option worth evaluating.
+
+Post-SMOTE Training Distribution
+LabelReal SamplesSyntheticTotal% of TrainNORMALL~2,133,1610~2,133,161~70.4%DoSD~312,8820~312,882~10.3%PROBE~116,5460~116,546~3.8%EXPLOIT~47,866~52,134100,000~3.3%MALWARE~4,774~20,22625,000~0.8%TOTAL~2,615,229~72,360~2,687,589100%
+
+Step 11 - Output Validation and Save
+Validation Assertions
+Before saving any output, eight hard assertions are checked. A failure in any assertion halts execution immediately.
+
+AssertionChecksShape consistencyTrain and test X arrays have the same number of columns. y arrays match corresponding X row counts.Sentinel mask shapesentinel_mask_smote.shape == X_train_smote.shape and sentinel_mask_test.shape == X_test_scaled.shapeValue range (non-sentinel)All non-sentinel values in both train and test are in [0.0, 1.0]No NaN valuesnp.isnan(X).any() == False for both train and testNo Inf valuesnp.isinf(X).any() == False for both train and testSentinel positions = 0.0X[sentinel_mask].all() == 0.0 - absent positions must be exactly zeroValid label valuesset(y_train_smote) and set(y_test) are subsets of {0, 1, 2, 3, 4}PCA not appliedRecorded as False in the preprocessing artefact JSON
+
+
+5. Output Artefacts
+
+Stage 2 produces eight artefacts. All artefacts are produced atomically - if any validation step fails, no files are written.
+
+ArtefactFormatContents / Purposestage2_X_train.parquetParquetPost-SMOTE training feature matrix. Shape: (~2.7M × post-enc-features). Float32. Column names preserved.stage2_X_test.parquetParquetTest feature matrix. Shape: (~654K × post-enc-features). Float32. Never touched by SMOTE.stage2_y_train.parquetParquetTraining integer labels. Column 'y'. Includes synthetic sample labels.stage2_y_test.parquetParquetTest integer labels. Column 'y'. Only real samples.stage2_sentinel_mask_train.parquetParquetBoolean sentinel mask for training set (post-SMOTE). Column names = post-encoding feature names.stage2_sentinel_mask_test.parquetParquetBoolean sentinel mask for test set.stage2_feature_names.jsonJSONOrdered list of post-encoding feature names. n_features = VAE input dimension. READ BY STAGE 3.stage2_preprocessing_artefacts.jsonJSONComplete preprocessing state: encoder frequencies, OHE categories, scaler min/max, SMOTE config, PCA=False flag. Needed for production inference.
+5.1  stage2_feature_names.json Schema
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-03-11T...",
+  "n_features": <int>,          // VAE input dimension - read this, do not hardcode
+  "feature_names": [...],        // ordered list of post-encoding column names
+  "quantum_dim": 8,              // VQC qubit count (constant)
+  "sentinel_value": -1.0,
+  "note": "Post-encoding, post-alignment feature count. OHE adds columns above 154."
+}
+5.2  stage2_preprocessing_artefacts.json Schema
+{
+  "schema_version": "1.0",
+  "n_features": <int>,
+  "feature_names": [...],
+  "label_encoding": {"NORMALL":0, "DoSD":1, "PROBE":2, "EXPLOIT":3, "MALWARE":4},
+  "sentinel_value": -1.0,
+  "test_size": 0.20,
+  "random_state": 42,
+  "ohe_cardinality_threshold": 10,
+  "freq_encoded_cols": [...],
+  "ohe_encoded_cols": [...],
+  "ohe_categories": { "protocol_type": ["icmp","tcp","udp"], ... },
+  "freq_maps": { "service": { "http": 0.42, ... }, ... },
+  "scaler_col_min": [...],       // per-column min (length = n_features)
+  "scaler_col_max": [...],       // per-column max (length = n_features)
+  "smote_targets": {3: 100000, 4: 25000},
+  "train_shape": [N_train, F],
+  "test_shape":  [N_test, F],
+  "qg03_leakage_acknowledged": true,
+  "pca_applied": false
+}
+
+6. Key Design Decisions and Rationale
+
+DD-1: Frequency Encoding over Target Encoding for High-Cardinality Columns
+Target encoding (replacing a category with its mean label value) was considered for the service and proto columns. It was rejected because target encoding is highly sensitive to class imbalance - with NORMALL at 77% of training data, the mean label value for most categories would be close to 0 (NORMALL) regardless of the category's actual threat relevance. This would cause the encoder to assign nearly identical values to 'http' (predominantly normal traffic) and obscure attack-bearing service categories.
+
+Frequency encoding uses only the marginal distribution of each category (how often it appears), not its conditional distribution with respect to the label. This makes it immune to class imbalance effects and does not constitute supervised learning that could leak label information.
+
+DD-2: Sentinel Mask as an Auxiliary Signal rather than Feature Deletion
+An alternative design would delete cross-dataset-absent features entirely and train three separate models - one per dataset. This was rejected because the goal of Stage 3 is to learn a unified 8-dimensional representation that captures network intrusion patterns across all three datasets. A shared representation enables the quantum classifier to generalise across data sources.
+
+The sentinel mask approach retains all features in a single unified model. The VAE learns to reconstruct real features while ignoring absent positions (via loss masking), effectively learning dataset-conditioned representations within a single model.
+
+DD-3: MinMax Scaling over StandardScaler (Z-score)
+StandardScaler was considered because it makes no assumption about the distribution shape. It was rejected because network traffic features are heavily right-skewed (many near-zero values, occasional extreme outliers in byte counts and packet rates). Z-score normalisation of such features would produce a wide range of positive values for outliers without a guaranteed bound.
+
+MinMax scaling to [0, 1] provides a hard bound that is critical for the downstream quantum angle encoding in Stage 4. The VAE bottleneck output must be bounded to [0, p] for valid qubit rotation angles, and this is easier to guarantee when the VAE input is bounded to [0, 1].
+
+DD-4: SMOTE in Feature Space After Scaling
+Some implementations apply SMOTE before scaling to avoid scale effects on the KNN distance metric used internally by SMOTE. However, with raw network traffic features ranging over many orders of magnitude (src_bytes: 0 to 1.38 × 10?; rate: 0 to 106), unscaled KNN distances would be entirely dominated by the largest-magnitude features. Applying SMOTE after scaling ensures each feature contributes proportionally to nearest-neighbour calculations.
+
+DD-5: Generic Records Excluded from EXPLOIT Class
+UNSW-NB15 contains 58,871 records labelled 'Generic' - a dataset-specific category with no agreed real-world threat analogue. Earlier versions of the pipeline mapped these to EXPLOIT with Low confidence and a flag_for_review flag. Following team discussion, these records were excluded in Stage 1 (version 1.1).
+
+The rationale: including Generic records would mean approximately half of the EXPLOIT training samples came from a category whose threat semantics are undefined. SHAP and LIME explanations generated for EXPLOIT predictions would reflect patterns from Generic traffic, making it impossible to claim that the model has learned 'what exploitation attempts look like' in any operationally meaningful sense. Exclusion reduces EXPLOIT training samples by ~55% but results in a cleaner, more defensible class definition.
+
+
+7. Pipeline Constants
+
+ConstantValueDescriptionSCHEMA_VERSION"1.0"Stage 1 schema version expected on all input Parquet filesQUANTUM_DIM8VQC qubit count - defines the VAE bottleneck dimension in Stage 3RANDOM_STATE42Fixed seed for all stochastic operations (split, SMOTE). Required for reproducibility.SENTINEL_VALUE-1.0Numeric sentinel for absent cross-dataset features. Post-scaling becomes 0.0.SENT_CAT"__ABSENT__"Categorical sentinel for absent cross-dataset featuresTEST_SIZE0.20Fraction of corpus reserved for test. 80/20 split.OHE_CARD_THRESHOLD10Max unique real values for OHE. Above threshold ? FrequencyEncoder.SMOTE_TARGETS{3: 100000, 4: 25000}Target count per class: EXPLOIT (3) ? 100,000; MALWARE (4) ? 25,000INT32_MAX2,147,483,647Used as upper clip bound for CICFlowMeter overflow columns
+
+8. Stage 3 Forward Requirements
+
+The following requirements are raised by Stage 2 for Stage 3 (VAE) and Stage 5 (Hybrid Ensemble) implementation:
+
+IDTopicRequirementFR-01VAE input dimensionRead stage2_feature_names.json for n_features. Do NOT hardcode. Post-encoding feature count may differ from 154 depending on OHE expansion.FR-02Sentinel mask inputThe VAE must receive the sentinel mask as an auxiliary input. The per-feature reconstruction loss must be weighted by (1 - sentinel_mask): absent positions must contribute zero to the loss.FR-03Bottleneck output to [0, p]The VAE bottleneck (8D) feeds directly into quantum angle encoding. Use a scaled sigmoid: output = torch.sigmoid(x) * p. This guarantees valid qubit rotation angles for all inputs.FR-04Bottleneck dimension = 8Fixed at QUANTUM_DIM = 8. This matches the number of qubits in the VQC. Do not change.FR-05No PCAPCA must never be applied at any stage in the pipeline. This is verified and recorded in stage2_preprocessing_artefacts.json.FR-06Scaling compatibilityStage 2 applies MinMaxScaler to [0,1]. Batch normalisation in the VAE encoder is optional but must not be applied to the bottleneck output (would interfere with [0, p] bounding).FR-07cVAE evaluationEvaluate a conditional VAE (cVAE) conditioned on master_label against a standard VAE. Multi-source data with 5 distinct classes may benefit from class-conditioned latent representations.FR-08Synthetic sample VAE trainingConsider training the VAE only on real (non-synthetic) samples. Synthetic SMOTE samples are used only for the downstream classical ensemble to improve minority-class separation.FR-09Feature name propagationStage 5 (Ensemble) must also read stage2_feature_names.json. XGBoost and RandomForest receive the scaled feature array and must use feature names for SHAP feature importance labelling.FR-10Version controlCommit all Stage 2 artefacts as stage2-v1.0 after successful execution and peer review.
+
+9. Known Limitations and Risk Register
+
+IDIssueImpactMitigationL-01QG-03 leakage (4,376 values)Negligible: 0.002% of CICIDS-2017 values. Affects only Flow Bytes/s and Flow Packets/s Infinity replacements.Documented in qg03_replacement_values.json. Fix available: recompute Stage 1 QG-03 after split using apply_quality_gate(inf_replacement_values={...}).L-02High sentinel rate for NSL-KDD (76.6%)NSL-KDD records have 118 of 154 features zeroed. The VAE must learn useful representations from 36 real features per record.Sentinel mask loss weighting ensures VAE reconstruction loss is computed only on the 36 real features. The 8D bottleneck should still capture meaningful patterns.L-03Synthetic sentinel mask approximationSMOTE synthetic samples receive majority-source-dataset sentinel mask rather than a per-sample mask derived from actual interpolation.Low impact: synthetic samples are interpolations of same-class records. Absent positions are 0.0 after scaling; interpolation preserves 0.0. Stage 3 FR-08 recommends evaluating VAE training on real-only data.L-04Heartbleed class too smallCICIDS-2017 Wednesday contains only 11 Heartbleed records. These are mapped to EXPLOIT but represent a very specific attack type that may be indistinguishable from other EXPLOIT patterns.Do not report Heartbleed-specific metrics. Report EXPLOIT class metrics only. Note in the paper that Heartbleed is a small contributor to the EXPLOIT class.L-05CICIDS-2017 dominates corpus (86.1%)The model may learn predominantly CICIDS-2017 traffic patterns. NSL-KDD and UNSW-NB15 contributions may be underweighted in gradient updates.Evaluate per-source-dataset metrics separately. Consider class-weighted loss in Stage 3/5 that accounts for source-dataset imbalance, not just class imbalance.L-06FrequencyEncoder handles unseen test values as 0.0A service or protocol value not seen in training maps to 0.0 (same as a rare seen value with frequency ˜ 0). This is a minor generalisation limitation.Acceptable for research purposes. In production, a separate 'unknown' frequency bin would be preferable.
+
+10. Version Control Checklist
+
+After successful execution, all Stage 2 artefacts must be committed to version control with the tag stage2-v1.0.
+
+ArtefactPurposeStatusStage2_Classical_Preprocessing.ipynbPipeline notebook with execution outputsPending executionstage2_X_train.parquetTraining feature matrix (post-SMOTE)Produced at runtimestage2_X_test.parquetTest feature matrixProduced at runtimestage2_y_train.parquetTraining labelsProduced at runtimestage2_y_test.parquetTest labelsProduced at runtimestage2_sentinel_mask_train.parquetTraining sentinel mask (post-SMOTE)Produced at runtimestage2_sentinel_mask_test.parquetTest sentinel maskProduced at runtimestage2_feature_names.jsonPost-encoding feature names + VAE input dimProduced at runtimestage2_preprocessing_artefacts.jsonComplete preprocessing state for inferenceProduced at runtime
+Git Tag: stage2-v1.0
+After successful end-to-end execution with all 11 validation assertions passing, commit the notebook (with saved outputs) and all 8 Parquet/JSON artefacts.
+Tag: stage2-v1.0
+Previous tag stage1-v1.1 (post-Generic-exclusion) must be committed first.
+
+Appendix A: Data Flow Summary
+
+The following table summarises the shape transformation of data through each Stage 2 step:
+
+StepOutput VariableShape (Train)Shape (Test)Key Change1nsl_raw, unsw_raw, cic_raw147,907 / 257,673 / 2,522,326-Parquet ? DataFrame2all_feat (pre-split)2,869,035 × 154-Padding to 154-col union3X_train_raw / X_test_raw~2,295,228 × 154~573,807 × 15480/20 stratified split4X_train_enc / X_test_enc~2,295,228 × F*~573,807 × F*Categoricals ? numeric5sentinel_mask_train/test~2,295,228 × F~573,807 × FBoolean mask created6X_train_clippedshape unchangedshape unchangedCICFlowMeter values clipped7X_train_imputedshape unchangedshape unchangedNaN ? median, 0 NaN remain8(verification only)--0 Inf confirmed9X_train_scaled / X_test_scaledshape unchangedshape unchangedValues ? [0,1]; sentinels ? 0.010X_train_smote~2,687,589 × FUNCHANGED+~72,360 synthetic samples11Parquet/JSON artefacts~2,687,589 × F saved~573,807 × F saved8 output artefacts written* F = post-encoding feature count; = 154, exact value determined at runtime.
+
+Appendix B: Cross-Reference to Stage 1 Forward Requirements
+
+Stage 1 raised 11 forward requirements for Stage 2. The table below shows how each is addressed:
+
+IDRequirementResolution in Stage 2StatusFR-S1-01Sentinel mask before normalisation (D7-1)Step 5 creates sentinel mask. Step 9 scaling consumes it. Order is enforced by sequential cell execution.? RESOLVEDFR-S1-02Schema version validation on first record readStep 1 validates schema_version == '1.0' before any processing.? RESOLVEDFR-S1-03Dual stratification: master_label × source_datasetStep 3 uses compound strat key. 15 strata.? RESOLVEDFR-S1-04QG-03 recomputation on train-onlyDocumented in Step 8. Full fix requires re-running Stage 1 QG-03 post-split.? ACKNOWLEDGED - minor leakageFR-S1-05No SMOTE on has_missing records without imputationStep 7 imputes all NaN before Step 10 SMOTE.? RESOLVEDFR-S1-06bounds_violation CICIDS = overflow ? clip not excludeStep 6 clips overflow columns. Records retained.? RESOLVEDFR-S1-07Log flag_for_review count in splitsPipeline summary logs flag_for_review per split. All 0 after Generic exclusion.? RESOLVEDFR-S1-08Categorical encoding strategyStep 4: FrequencyEncoder for high-card, OHE for low-card. Decision recorded in artefact.? RESOLVEDFR-S1-09Feature alignment using feature_alignment_map.jsonStep 2 reads feature_alignment_map.json for sentinel policy.? RESOLVEDFR-S1-10Generic records team decisionExcluded in Stage 1 v1.1. Not a Stage 2 concern.? RESOLVED (Stage 1)FR-S1-11CICIDS duplicate rate documentedDocumented in preprocessing artefact JSON. 10.89% noted.? RESOLVED
+NIDS Stage 2 - Classical Preprocessing Pipeline		v1.0 | March 2026
+
+Explainable Hybrid Quantum-Classical NIDS	Technical Reference
+

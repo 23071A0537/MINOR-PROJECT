@@ -1,0 +1,188 @@
+
+STAGE 1 NOTEBOOK
+Completion Assessment Report
+Data Ingestion & Master Label Taxonomy Mapping
+
+AttributeDetailNotebook FileStage1_Preprocessing_Complete.ipynbTotal Cells50 (28 markdown + 22 code)Reference DocumentStage 1 Design Specification v1.0Overall VerdictINCOMPLETE - Significant scope violations, critical bugs, and missing componentsStage 1 Completion~38% of specification requirements metCritical Findings6 Critical  |  8 Major  |  5 Minor
+Architecture Integrity
+FAILEDTaxonomy Correctness
+PARTIALOutput Schema Compliance
+FAILED
+
+  Executive Summary
+
+The notebook Stage1_Preprocessing_Complete.ipynb is not a completed Stage 1 implementation. While it demonstrates sound intent and correctly implements several isolated components - particularly the quality gate logic and the NSL-KDD schema contract - it contains six critical findings that make the current output unsuitable as input for Stage 2 or Stage 3.
+
+The most consequential problem is an architectural one: the notebook combines Stage 1, Stage 2, and a portion of Stage 3 into a single pipeline, then produces the wrong output. It outputs an 8-dimensional PCA-reduced array, which directly conflicts with the VAE-based dimensionality reduction strategy that is the primary innovation of the research project. The VAE in Stage 3 cannot be trained if PCA has already collapsed the feature space. Additionally, the scaler and imputer are fitted on the full dataset before the train/test split, introducing data leakage into every experiment conducted with this notebook.
+
+  VERDICT    Stage 1 is NOT Complete
+• The notebook must be substantially restructured before it can be considered a correct Stage 1 implementation.
+• The PCA cell (Step 15) must be removed entirely - this conflicts with the project's core VAE architecture.
+• Data leakage must be corrected: scaler and imputer must be fitted on training data only, after the split.
+• The output record schema (11 mandatory fields) is not produced - original_label, source_dataset, mapping_confidence, and flag_for_review are all absent.
+• Only one CICIDS-2017 daily file is loaded - the dataset is severely under-represented.
+• Stage 2 transformations (OHE, imputation, scaling, SMOTE) belong in a separate Stage 2 notebook.
+
+  Section 1 - What Is Correctly Implemented
+
+The following components are correctly designed and consistent with the design specification.
+
+1.1 - Environment & Constants (Cell 02)
+The global constants are correctly defined and align with the specification:
+• SCHEMA_VERSION = '1.0' - version-stamped as required by the spec.
+• QUANTUM_DIM = 8 - correctly hardcoded to match the 8-qubit VQC circuit constraint.
+• RANDOM_STATE = 42 - ensures reproducibility across all downstream operations.
+• QUARANTINE_THRESHOLD = 0.05 - the 5% threshold exactly matches the spec's requirement.
+• MASTER_NAMES dict - numeric class encoding is logical and consistently referenced throughout.
+
+1.2 - NSL-KDD Loading & Column Naming (Cell 05)
+NSL-KDD loading is correctly handled. The dataset has no header row, so the column list is explicitly defined matching the 43-column schema contract (41 features + label + difficulty_level). Train and test files are correctly concatenated before auditing, which is the right approach for computing dataset-level statistics.
+
+1.3 - Dataset Audit Function (Cell 12)
+The audit_dataset() function is well-designed and covers all required profile statistics from the spec:
+• Record and feature counts
+• Data type distribution
+• Missing value detection (per-column counts and percentages)
+• Infinity value detection (per-column, with percentage)
+• Negative value detection for physical bounds awareness
+• Near-zero variance feature identification (unique count = 2, variance < 0.01)
+• Exact duplicate row detection
+• Full numeric statistics (describe())
+
+1.4 - Native Label Vocabulary Extraction (Cell 17)
+The native label vocabulary is extracted directly from the data using .value_counts(), not from documentation. This is precisely what Validation Checkpoint VC-2.3 requires: 'Extract exact label string values from the data (not documentation).' This is correctly implemented.
+
+1.5 - Schema Contract Definitions (Cell 19)
+The SCHEMA_CONTRACTS dictionary correctly captures most of the spec's schema contract requirements:
+• Label column names are correctly mapped per dataset.
+• Identity/leakage columns are identified for UNSW-NB15 (srcip, dstip, sport, dsport, stime, ltime).
+• CICIDS-2017 identity columns are correctly enumerated.
+• The extra binary 'label' column in UNSW-NB15 is flagged for dropping - correctly handles the binary vs. multi-class label ambiguity.
+• CICIDS-2017 column whitespace stripping is applied immediately at load time in Cell 10, satisfying Decision D3-1.
+
+1.6 - Quality Gate Implementation (Cell 21)
+The apply_quality_gate() function is the strongest component in the notebook. All six quality rules are implemented with broadly correct logic:
+• QG-01 (Label Validity): invalid labels quarantined. Correct.
+• QG-02 (Feature Count): all-NaN rows quarantined as malformed. Reasonable proxy for the spec's column count check.
+• QG-03 (Infinity Handling): replaced with 99th percentile of finite values. Semantically correct per spec.
+• QG-04 (NaN Classification): keyword-based structural vs. missing NaN classification. Matches spec intent.
+• QG-05 (Physical Bounds): negative values in rate/count/byte columns are flagged. Correct approach.
+• QG-06 (Duplicate Detection): exact duplicates removed with one copy retained. Correct.
+• The 5% quarantine threshold alert is implemented and references the global constant.
+
+1.7 - Drop Logic & UNSW-NB15 Identity Exclusion (Cells 28, 30)
+The column drop logic is correctly structured per dataset and matches the schema contracts. The UNSW-NB15 identity columns (srcip, dstip, sport, dsport) are excluded, satisfying Decision D2-3. The label separation logic in Cell 30 is clean and correctly handles the UNSW-NB15 binary/multi-class dual-column situation.
+
+1.8 - Taxonomy Mapping Structure (Cell 32)
+The taxonomy mapping is structured per dataset and references the correct design decisions by name (D5-1, D5-2, D5-3, D5-4, D5-5 in comments). The NSL-KDD mapping correctly enumerates individual attack sub-types rather than relying on the family-level labels. The CICIDS-2017 mapping handles the Windows-1252 en-dash encoding issue in Web Attack labels across all three encoding variants - this is a sophisticated, practical implementation detail.
+
+
+  Section 2 - Critical Findings
+
+Critical findings are blockers. The notebook cannot be used for downstream stages until every critical finding below is resolved. Each finding includes the cell reference, the exact problem, and the required correction.
+
+  CF-01    PCA Is an Architecture Violation - Must Be Removed Entirely
+• Location: Cell 44 (Step 15 - PCA Dimensionality Reduction to 8 Features).
+• The project's primary innovation is using a Variational Autoencoder (Stage 3) for probabilistic dimensionality reduction. The design specification explicitly states: 'Feature reduction is NOT required at this stage because I will apply a VAE later.'
+• By applying PCA before the VAE exists, the notebook produces an 8-dimensional output instead of the full-width feature matrix that Stage 2 and Stage 3 require. There is nothing for the VAE to learn from - the information has already been collapsed.
+• PCA is also a deterministic linear transform that cannot capture the non-linear, probabilistic structure that makes the VAE useful for separating attack distributions in latent space.
+• Required fix: Delete Cell 44 entirely. The notebook's output should be the full-width normalised feature matrix, not an 8-dimensional PCA projection. The QUANTUM_DIM=8 constraint belongs to the VQC circuit in Stage 4, reached via the VAE bottleneck in Stage 3.
+  CF-02    Data Leakage - Scaler and Imputer Fitted Before Train/Test Split
+• Location: Cell 36 (imputer.fit_transform(X)) and Cell 38 (scaler.fit_transform(X_arr)), both executed BEFORE Cell 40 (train_test_split).
+• fit_transform() both learns statistics from and transforms the data simultaneously. When applied to the full dataset, the scaler learns the min/max and the imputer learns the median including test set values. Every model trained downstream has implicitly seen test data statistics.
+• This invalidates all accuracy and F1 metrics produced by this pipeline. Results will be optimistically inflated and non-reproducible when the pipeline is applied to genuinely unseen data.
+• Required fix: The train/test split must be moved to immediately after taxonomy mapping (before OHE, imputation, and scaling). Then fit the imputer on X_train only (.fit()), transform both X_train and X_test (.transform()). Same pattern for the scaler.
+• This also applies to QG-03: the 99th percentile replacement value is computed on the full dataset in apply_quality_gate(). That function must receive only training data, then its replacement values must be stored as an artefact and applied separately to test data.
+  CF-03    Output Record Schema Not Produced - 7 of 11 Mandatory Fields Missing
+• The Stage 1 Design Specification v1.0 defines an 11-field canonical output record. The notebook produces none of the metadata fields.
+• MISSING: source_dataset - there is no way to identify which dataset a record came from in the output arrays.
+• MISSING: original_label - the native label string is discarded after mapping; traceability to the source is lost.
+• MISSING: mapping_confidence - not computed or attached anywhere. This field drives the SMOTE strategy in Stage 2 and the ablation study in the paper.
+• MISSING: flag_for_review - not implemented. Low-confidence mappings (Generic, Infiltration) are silently included with no marker.
+• MISSING: ingestion_timestamp - not attached to records.
+• MISSING: schema_version - defined as a constant but never attached to the output records.
+• MISSING: quality_flags list - the quality gate computes this correctly but Cell 28 immediately drops quality_pass, has_missing, and bounds_violation before they can be used.
+• Required fix: Refactor the pipeline to emit a structured DataFrame/Parquet file with all 11 output schema fields as columns, not raw numpy arrays.
+  CF-04    CICIDS-2017 Is Loaded from One Daily File Only - Dataset Severely Under-Represented
+• Location: Cell 10 - only 'Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv' is loaded.
+• The design specification states: 'multiple daily files must be concatenated.' CICIDS-2017 has eight daily files covering different attack types across different days (Monday through Friday, multiple sessions).
+• Loading only the Friday DDoS afternoon file means the pipeline has no PortScan traffic, no Brute Force traffic, no Web Attacks, no Bot traffic, and no Heartbleed samples from CICIDS-2017. The PROBE and EXPLOIT master labels will be systematically under-represented.
+• The audit report, quality gate statistics, and taxonomy distribution shown in the notebook are therefore not representative of the actual CICIDS-2017 dataset.
+• Required fix: Load and concatenate all daily CICIDS-2017 CSV files. After concatenation, verify column name consistency across files (some files have slight differences) and document the intersection of common columns per Decision D3-2.
+  CF-05    Stages 1 and 2 Are Conflated - Pipeline Scope Boundary Violated
+• Stage 1 (this notebook) should output raw, quality-gated, labelled records with no feature transformation beyond Infinity/structural NaN resolution (as permitted by QG-03 and QG-04).
+• The following operations belong exclusively in Stage 2 and must not appear in Stage 1:
+• Cell 34 - One-Hot Encoding: categorical feature transformation is Stage 2.
+• Cell 36 - SimpleImputer (median): remaining missing value imputation is Stage 2.
+• Cell 38 - MinMaxScaler: feature normalisation to [0,1] is Stage 2.
+• Cell 40 - train_test_split: the split should occur at the Stage 2 boundary after all three datasets are combined and the 196-feature aligned corpus is assembled.
+• Cell 42 - SMOTE: class balancing is Stage 2.
+• Cell 44 - PCA: this is neither Stage 1 nor Stage 2 - it must be replaced by the VAE in Stage 3.
+• Required fix: Create a Stage 2 notebook for all operations listed above. Stage 1 should terminate after Cell 32 (taxonomy mapping), saving the structured output record as a Parquet file.
+  CF-06    No Cross-Dataset Unified 196-Feature Corpus Is Produced
+• The pipeline processes one dataset at a time via the DATASET variable switch. This produces three independent single-dataset pipelines, not a unified cross-dataset corpus.
+• The design specification's central structural requirement is that all three datasets are combined into a single 196-dimensional feature space using semantic feature group alignment and the -1.0 sentinel value policy for absent features.
+• A model trained on nsl_kdd alone cannot generalise across datasets. The quantum advantage claim requires evaluation on all three datasets jointly or with explicit cross-dataset transfer.
+• Required fix: After Stage 1 processes all three datasets independently, a concatenation step must assemble the unified corpus. The 196-feature alignment map (feature_alignment_map.yaml) must be implemented, and the -1.0 sentinel policy must be applied for absent feature groups.
+
+  Section 3 - Major Findings
+
+Major findings are not immediate blockers but will cause incorrect results, invalid paper claims, or significant technical debt if not resolved before Stage 2 implementation begins.
+
+MF-01 - Generic (UNSW-NB15) Mapped to DoS, Not EXPLOIT (Cell 32)
+Specification decision D5-4: 'Generic' should map to EXPLOIT (class 3) with Low confidence. The notebook maps it to class 1 (DoS) with a comment saying 'DoS per guide' - this contradicts the specification and the semantic rationale. Generic attacks use exploit payloads, not volume-based denial-of-service techniques.
+Required fix: Change UNSW_MAP['generic'] from 1 to 3. Add mapping_confidence = 'Low' and flag_for_review = True to records mapped from Generic.
+
+MF-02 - Unknown Label Fallbacks Are Silent and Incorrect (Cell 32)
+NSL-KDD unknown labels fall through to return 1 (DoS). UNSW-NB15 unknown labels become 1 via .fillna(1). CICIDS-2017 unknown labels become 0 (NORMALL) via .fillna(0). Silently assigning unknown attack traffic as NORMALL (class 0) is particularly dangerous - it will train the model to classify that attack pattern as legitimate traffic. Unknown labels should either be quarantined via QG-01 or explicitly handled with a documented decision.
+Required fix: Add a post-mapping assertion that counts unmapped labels. Log them and quarantine them rather than assigning a default class.
+
+MF-03 - service Column (NSL-KDD) One-Hot Encoded Despite High Cardinality Warning (Cell 34)
+The design specification flagged that NSL-KDD's service column has 70 unique values, and recommended target encoding or frequency encoding instead of OHE. Using pd.get_dummies() on service generates 70 additional binary columns from a single feature. This inflates the feature space disproportionately and makes the resulting matrix dataset-specific - UNSW-NB15 and CICIDS-2017 will have entirely different OHE column structures, making cross-dataset alignment impossible.
+Required fix: Replace OHE for service (NSL-KDD) and proto (UNSW-NB15, ~130 unique values) with frequency encoding or target encoding in Stage 2.
+
+MF-04 - Near-Zero Variance Features Not Excluded for NSL-KDD
+The schema contract (Cell 19) correctly identifies land, urgent, and num_outbound_cmds as near-zero variance features. However, the DROP_COLS list in Cell 28 only drops difficulty_level. The three flagged near-zero variance features are retained in the feature matrix, adding noise dimensions to every NSL-KDD experiment.
+Required fix: Add 'land', 'urgent', 'num_outbound_cmds' to the NSL-KDD entry of DROP_COLS.
+
+MF-05 - Quality Metadata Columns Dropped Before They Can Be Used (Cell 28)
+The quality gate correctly computes quality_pass, has_missing, and bounds_violation and attaches them to df_clean. Cell 28 then immediately drops them via the QUALITY_META list before any downstream component has a chance to use them. The has_missing flag is particularly important: the spec states 'Stage 2 must not apply SMOTE to records where has_missing = True without imputation.' If the flag is dropped, Stage 2 cannot respect this requirement.
+Required fix: Remove QUALITY_META from the drop logic. Preserve these fields in the Stage 1 output record, and handle them appropriately in Stage 2.
+
+MF-06 - Dual Stratification Not Implemented in Train/Test Split (Cell 40)
+The specification requires stratifying on both master_label AND source_dataset simultaneously to prevent any single dataset from dominating either the train or test split. The current implementation only stratifies on y_arr (master_label alone). Since the pipeline currently processes one dataset at a time, this is partially masked, but it will become a significant issue once the unified cross-dataset corpus is assembled.
+Required fix: Create a combined stratification key (e.g., source_dataset + '_' + str(master_label)) and use it as the stratify argument.
+
+MF-07 - QG-03 Replacement Values Computed on Full Dataset (Data Leakage Variant)
+Inside apply_quality_gate(), the 99th percentile for Infinity replacement is computed from all finite values in the column passed to the function. In Cells 22-24, the functions are called on the full uncleaned DataFrames (not on the training split). This means test-set flow statistics influence the Infinity replacement value - a subtler form of the same leakage identified in CF-02.
+Required fix: Apply QG-03 Infinity handling in two phases: (1) compute replacement values on training data only and serialise them, (2) apply those stored values to test data without recomputing.
+
+MF-08 - SMOTE Applied Before Addressing has_missing Records (Cell 42)
+SMOTE interpolates between minority class neighbours to generate synthetic samples. If records with has_missing = True are present in the training set (because the flag was dropped in Cell 28), SMOTE will interpolate across NaN values, producing synthetic samples with NaN features. This is a silent data corruption issue that will cause unpredictable downstream model behaviour.
+Required fix: Filter out has_missing records (or impute them) before applying SMOTE. This is only possible if the has_missing flag is preserved (see MF-05).
+
+
+  Section 4 - Minor Findings
+
+Minor findings are correctness or documentation issues that do not block execution but should be resolved for publication quality.
+
+IDLocationIssueSeverityRecommended FixMN-01Cell 02MASTER_NAMES uses 'NORMAL' but the design spec defines the label as 'NORMALL' (double-L). This is a naming inconsistency between the spec and the notebook.MINORStandardise to the spec's 'NORMALL' or formally update the spec. Do not leave the inconsistency undocumented.MN-02Cell 32 (CICIDS)Infiltration is included and mapped to EXPLOIT with a comment '~36 samples.' The spec recommended exclusion (D5-3) precisely due to statistical unreliability. Including it without class weighting may confuse the VAE.MINOREither formally document the override of D5-3 with a written justification, or exclude Infiltration as the spec recommends. Log the sample count in the pipeline summary.MN-03Cell 08UNSW-NB15 is loaded from a Kaggle pre-split dataset (training-set.csv + testing-set.csv) rather than the original four CSV files (UNSW-NB15_1.csv through _4.csv). The pre-split version may have different class distributions.MINORDocument which UNSW-NB15 file version is being used in the schema contract. If using the Kaggle version, verify its class distribution matches the original paper's reported statistics.MN-04Cell 19expected_cols is set to None for UNSW-NB15 and CICIDS-2017, disabling the column count check (QG-02 indirect). The spec requires this check to raise on critical violations.MINORAfter confirming the CICIDS-2017 daily file intersection, populate expected_cols for all three datasets. Use a 'minimum expected columns' threshold if exact count varies.MN-05Cell 48The PCA artefact is saved (pca.joblib) alongside the imputer and scaler. Since PCA must be removed, this artefact store design needs updating. The taxonomy YAML mapping is not saved as an artefact.MINORRemove pca.joblib from the artefact store. Add serialisation of the taxonomy YAML reference (version string + hash) so the mapping version is traceable from the saved artefacts.
+
+  Section 5 - Validation Checkpoint Status
+
+The design specification defined 28 validation checkpoints across 8 steps. The table below shows the status of each checkpoint against the notebook's implementation.
+
+CheckpointDescriptionStatusNotesVC-1.1Directory structure committed to version controlMISSINGNo project structure defined in the notebookVC-1.2Dependency manifest reviewedPARTIALpip install in Cell 02 but no requirements.txt or locked versionsVC-1.310,000-record stratified sample files for dev testingMISSINGNot implementedVC-1.4Logging standard documentedMISSINGNo structured logging formatVC-2.1Dataset Audit Report produced for all three datasetsPASSCells 12-15 produce comprehensive audit outputVC-2.2CICIDS-2017 Infinity/NaN counts verified, treatment decidedPARTIALQG-03 handles Infinity correctly; only one file loadedVC-2.3Native label vocabulary extracted from dataPASSCell 17 extracts exact label strings from loaded dataVC-2.4MALWARE class sample count confirmedPARTIALCell 32 shows class distribution; MALWARE count not explicitly validatedVC-3.1Three schema contract documents peer-reviewedPARTIALSCHEMA_CONTRACTS dict exists; no peer-review evidenceVC-3.2Schema violation definition and handling policy documentedPARTIALvalidate_schema() exists; violation handling is warn-only, not raiseVC-3.3Column exclusion list finalised and justifiedPASSExclusion lists are present and match audit findingsVC-3.4CICIDS-2017 daily file column intersection verifiedMISSINGOnly one file loaded; no intersection analysisVC-4.1All 6 quality rules formally definedPASSQG-01 through QG-06 all implemented in apply_quality_gate()VC-4.2Quarantine policy documented with file formatPARTIALQuarantine DataFrame created but not persisted to fileVC-4.35% threshold justified against audit dataPARTIALThreshold implemented; justification not documentedVC-4.4QG-03 artefact data leakage risk documentedMISSINGLeakage exists and is not acknowledgedVC-5.1Complete mapping table covering 100% of native labelsPARTIALIndividual attack sub-types in NSL-KDD covered; UNSW Generic incorrectly mappedVC-5.2Ambiguous mappings resolved with written justificationPARTIALDecision codes referenced in comments; no written justification paragraphsVC-5.3Cross-dataset master label distribution reviewedPARTIALPer-dataset distributions shown; no combined corpus distributionVC-5.4Taxonomy mapping YAML committed to version controlMISSINGMapping is hardcoded in the notebook; no YAML artefactVC-6.1Component interface specifications reviewedMISSINGNo formal interface definition between pipeline phasesVC-6.2Artefact store reviewed for data leakageMISSINGLeakage present; not reviewedVC-6.3Pipeline summary report format definedPARTIALCell 46 prints a summary; not a structured report formatVC-6.4Idempotency and random seed policy documentedPARTIALRANDOM_STATE=42 set; idempotency not guaranteed or testedVC-7.1Output record schema reviewed and signed offMISSING11-field schema not produced; metadata fields absentVC-7.2Sentinel value -1.0 policy documented and forwarded to Stage 2MISSINGNot implemented; no 196-feature alignment attemptedVC-7.3Feature alignment YAML structure definedMISSINGNot implementedVC-8.4Formal sign-off obtained; implementation cleared to beginMISSINGNo review or sign-off process documented
+
+  Section 6 - Remediation Roadmap
+
+The following ordered action plan will bring the notebook to a correctly implemented Stage 1. Actions are sequenced so that each one is valid given the state left by the previous action.
+
+PriorityActionAddressesImpact1 - ImmediateRemove Cell 44 (PCA) and Cell 48 save of pca.joblib entirelyCF-01, MN-05Eliminates the architecture conflict with the VAE2 - ImmediateMove the train/test split to immediately after Cell 32 (taxonomy mapping). Reorder: split ? OHE ? impute (train only) ? scale (train only) ? SMOTECF-02, MF-07Eliminates all data leakage3 - HighLoad all CICIDS-2017 daily files, concatenate, and verify column intersectionCF-04Makes CICIDS-2017 representative4 - HighAdd source_dataset, original_label, mapping_confidence, flag_for_review, ingestion_timestamp, schema_version to all output recordsCF-03Produces the required 11-field output schema5 - HighRemove QUALITY_META drop from Cell 28 - preserve quality flags in outputMF-05, MF-08Enables Stage 2 to use quality metadata6 - HighFix UNSW_MAP['generic'] from 1 (DoS) to 3 (EXPLOIT) and add Low confidence flagMF-01Corrects taxonomy mapping per spec Decision D5-47 - HighReplace unknown label fallbacks with quarantine logic (no silent DoS/NORMALL assignment)MF-02Prevents attack traffic being labelled as legitimate8 - MediumAdd 'land', 'urgent', 'num_outbound_cmds' to NSL-KDD DROP_COLSMF-04Removes near-zero variance noise features9 - MediumSplit the notebook into two: Stage 1 (through taxonomy mapping) and Stage 2 (OHE through SMOTE)CF-05Enforces the stage boundary defined in the architecture10 - MediumImplement the 196-feature semantic alignment and -1.0 sentinel value policy across all three datasetsCF-06, VC-7.2Enables the cross-dataset unified corpus11 - LowerExport the taxonomy mapping to a versioned YAML file; serialise quarantine DataFrames to ParquetVC-5.4, VC-4.2Satisfies specification artefact requirements12 - LowerStandardise 'NORMAL' to 'NORMALL' throughout to match specification namingMN-01Eliminates naming inconsistency
+  NOTE    What Can Be Reused
+• The audit_dataset() function (Cell 12) is well-designed and can be kept unchanged.
+• The apply_quality_gate() function (Cell 21) is structurally sound - it only needs QG-03 leakage fix (Action 2) and the quarantine file serialisation (Action 11).
+• The SCHEMA_CONTRACTS dictionary (Cell 19) is a good foundation - add expected_cols for all datasets (MN-04).
+• The dataset loading for NSL-KDD (Cell 05) and UNSW-NB15 (Cell 08) are correctly implemented and can be kept.
+• The taxonomy mapping logic in Cell 32 is structurally sound and handles edge cases well (en-dash encoding variants). It needs the Generic fix (Action 6) and the fallback fix (Action 7).
+Stage 1 Notebook Assessment Report  |  Explainable Hybrid Quantum-Classical NIDS  |  6 Critical  |  8 Major  |  5 Minor
