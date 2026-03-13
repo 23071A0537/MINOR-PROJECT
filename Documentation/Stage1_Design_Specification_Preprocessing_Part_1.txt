@@ -1,0 +1,280 @@
+
+DESIGN SPECIFICATION
+Stage 1: Data Ingestion &
+Master Label Taxonomy Mapping
+Explainable Hybrid Quantum-Classical Network Intrusion Detection System
+
+AttributeDetailDocument TypeDesign Specification (No Code)ScopeStage 1: Data Ingestion & Master Label Taxonomy MappingTarget DatasetsNSL-KDD (41 features), UNSW-NB15 (196 features), CICIDS-2017 (80+ features)Output ContractStructured, labelled, quality-validated records ready for Stage 2 preprocessingMaster LabelsNORMALL | DoSD | PROBE | EXPLOIT | MALWAREVersion1.0 - Initial Design Specification
+
+
+  Document Purpose & How to Use This Spec
+
+This document is the authoritative design specification for Stage 1 of the Quantum IDS pipeline. It provides a sequential, step-by-step plan that a developer or team can follow to design, validate, and document the data ingestion and taxonomy mapping subsystem before writing a single line of production code.
+
+Each step is structured into four mandatory sections:
+• Objective & Sub-Tasks - what must be designed and why
+• Key Design Decisions - explicit choices that must be resolved before proceeding
+• Risks & Mitigations - failure modes and their countermeasures
+• Validation Checkpoints - specific criteria that must be met to exit the step
+
+CRITICAL CONSTRAINT
+• Stage 1 produces NO feature transformations. It only assigns master labels, validates data quality, and emits a structured record per network flow.
+• All normalization, encoding, scaling, and SMOTE belong exclusively in Stage 2.
+• Any design decision that crosses this boundary must be flagged as a scope violation.
+  Master Label Taxonomy Reference
+
+The 5-class master taxonomy is the semantic backbone of the entire pipeline. Every subsequent stage - from VAE training loss to SHAP explanations - depends on the accuracy and consistency of these label assignments. The table below is the canonical mapping reference.
+
+Master LabelMeaningNSL-KDD SourcesUNSW-NB15 SourcesCICIDS-2017 SourcesConfidenceNORMALLLegitimate trafficNormalNormalBENIGNHighDoSDDenial of Service / DDoSDoSDoSDoS Hulk, GoldenEye, Slowloris, Slowhttptest, DDoSHighPROBEReconnaissance / Port Scan / FuzzingProbeReconnaissance, Fuzzers*, Analysis*PortScanMed-HighEXPLOITR2L, U2R, Brute Force, Web, Buffer OverflowR2L, U2RExploits, Generic*Brute Force, Web Attacks, Heartbleed, Infiltration*Med-HighMALWAREBackdoors, Worms, Botnet, Shellcode-Backdoors, Worms, ShellcodeBotHigh
+AMBIGUOUS MAPPINGS - Require explicit design decision before Step 5
+• Fuzzers (UNSW-NB15): Maps to PROBE. Rationale: fuzzing is primarily reconnaissance behaviour even when used as an exploit precursor. Document this decision.
+• Generic (UNSW-NB15): Maps to EXPLOIT. Rationale: catch-all for unclassified attack payloads. Flag with mapping_confidence = Low and flag_for_review = true.
+• Analysis (UNSW-NB15): Maps to PROBE. Rationale: includes port/service enumeration. Semantically closer to reconnaissance than exploitation.
+• Infiltration (CICIDS-2017): Maps to EXPLOIT. Rationale: multi-stage, but the terminal payload is exploitative. Only ~36 samples - consider exclusion (see Step 5 Decision D5-3).
+
+STEP
+1Environment & Repository Setup
+Establish the infrastructure before touching any dataset
+Objective
+Before any dataset is opened, the development environment and project structure must be formally defined. This step ensures reproducibility, enables collaboration, and prevents environment-specific bugs from contaminating experimental results later.
+
+Sub-Tasks
+• Define the project's directory structure and document it as the canonical layout for all team members.
+• Create a dependency manifest specifying exact library versions for: pandas, numpy, scikit-learn, imbalanced-learn, and any additional ingestion utilities.
+• Establish a version control workflow: branching strategy (feature branches per step), commit message convention, and PR review policy.
+• Define logging standards: every pipeline stage must emit structured logs with dataset name, step name, record counts before/after, and any anomalies detected.
+• Create the canonical output schema document (see Step 7) as a placeholder - it will be filled during this specification process.
+
+KEY DESIGN DECISIONS
+• D1-1: Python version (recommend 3.10+ for type hint support across all target libraries).
+• D1-2: Virtual environment tool - venv, conda, or poetry. This decision affects how dependency conflicts are resolved when combining quantum and classical libraries later.
+• D1-3: Data storage location - local filesystem, cloud bucket (S3/GCS), or shared NFS. This decision affects all downstream file-path references.
+• D1-4: Raw data policy - are original dataset files ever modified? Recommend: read-only raw data, all outputs written to separate processed/ directory.RISKS & MITIGATIONS
+• Risk: Inconsistent environments across team members cause non-reproducible results. Mitigation: lock all versions in requirements.txt or environment.yml and commit it.
+• Risk: Dataset files accidentally modified or overwritten. Mitigation: set raw dataset directories to read-only at OS level and enforce via CI check.
+• Risk: Large dataset files (CICIDS-2017 ~8GB) slow down development. Mitigation: create a 10,000-record stratified sample of each dataset for design-phase testing.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-1.1Directory structure created and committed to version controlAll team members can clone and reproduce the structureVC-1.2Dependency manifest reviewed and approvedNo library version conflicts detected when installed freshVC-1.310,000-record sample files created for all three datasetsSamples are stratified by native label and committed to dev data directoryVC-1.4Logging standard documented and reviewedSample log output matches the agreed format
+
+STEP
+2Dataset Acquisition & Initial Audit
+Profile each dataset before designing any transformation
+Objective
+Each of the three datasets must be obtained, documented, and profiled in its raw, untransformed state. This step produces a Dataset Audit Report - a reference document that all subsequent design decisions in this specification are grounded in measured reality, not assumptions.
+
+Sub-Tasks
+• Verify dataset licences and confirm academic/research use is permitted for all three datasets before downloading.
+• Document provenance: URL, version, SHA-256 hash, download date, and file format for each dataset. This is required for the paper's reproducibility section.
+• For each dataset, compute and document the following profile statistics without any transformation:
+? Total record count and class distribution (absolute counts and percentages per native label).
+? Feature count and data type per column (numerical, categorical, binary).
+? Missing value count and percentage per column.
+? Infinity and NaN counts per column - especially critical for CICIDS-2017.
+? Min, max, mean, median, and standard deviation for all numerical features.
+? Unique value counts for all categorical features.
+• Flag NSL-KDD features with near-zero variance (specifically: land, urgent, num_outbound_cmds) and document them.
+• Flag UNSW-NB15 raw identity fields (srcip, dstip, sport, dsport) and document the exclusion decision.
+• Document the specific columns that contain Infinity values in CICIDS-2017 and their semantic meaning.
+
+KEY DESIGN DECISIONS
+• D2-1: How are Infinity values in CICIDS-2017 treated? (Recommended: replace with 99th percentile of that feature - not mean imputation, as Infinity is a computational artifact of zero-duration flows, not a missing value.)
+• D2-2: Are near-zero-variance features excluded at ingestion or preserved and flagged? Recommended: preserve but flag, as the VAE may still extract signal from these features across datasets.
+• D2-3: Are raw IP/port identity fields from UNSW-NB15 excluded entirely? Recommended: yes, to prevent the model from memorising IP addresses as attack signatures.RISKS & MITIGATIONS
+• Risk: Assuming CICIDS-2017 NaN values are missing data and imputing with mean - this is semantically wrong. Mitigation: classify NaN types before imputation (structural vs. missing).
+• Risk: Dataset class imbalance is more severe than expected, invalidating the SMOTE strategy in Stage 2. Mitigation: document imbalance ratios now so Stage 2 design is grounded in real counts.
+• Risk: Native label vocabulary differs from expected values (typos, case differences in CSVs). Mitigation: document exact unique label strings before building the taxonomy mapping.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-2.1Dataset Audit Report produced and reviewed for all three datasetsReport contains all required profile statistics; no assumption-based gapsVC-2.2Infinity/NaN counts verified for CICIDS-2017Specific column names and counts documented; treatment decision (D2-1) recordedVC-2.3Native label vocabulary documented per datasetExact string values extracted from data (not documentation); used as input to Step 5VC-2.4MALWARE class sample count confirmedIf MALWARE-mapped classes total fewer than 500 samples across all datasets, escalate to team for taxonomy review
+
+STEP
+3Per-Dataset Schema Contract Definition
+Define the explicit input contract for each dataset ingestion module
+Objective
+A schema contract is a formal declaration of what a dataset ingestion module expects as input and guarantees as output. By defining these contracts before writing code, the team prevents silent data corruption, enables unit testing, and creates the traceability required for the paper's methodology section.
+
+Sub-Tasks
+• Write a schema contract document for each of the three datasets. Each contract must specify:
+? Source format: CSV or Parquet, header row present/absent, delimiter, encoding.
+? Expected column list: name, data type, and semantic meaning for every column used.
+? Columns explicitly excluded: name and documented reason for exclusion (e.g., identity leakage, zero-variance).
+? Native label column name and exact expected string values (from Step 2 audit).
+? Known data quality issues: which columns carry Infinity, NaN, or negative values that are physically impossible.
+• Define what constitutes a 'schema violation' for each dataset - records that fail the contract must be counted, logged, and quarantined (not silently dropped).
+• Define the contract version field: each schema contract carries a version string so future dataset updates can be tracked against the original design.
+
+NSL-KDD Schema Contract - Summary
+FieldValueSource FormatCSV, no header row in KDDTrain+.txt / KDDTest+.txt; column names from separate names fileTotal Columns43 (41 features + 1 label + 1 difficulty score - drop difficulty score)Categorical Columnsprotocol_type (3 values), service (70 values), flag (11 values)Label Columncolumn index 41; values: normal, dos, probe, r2l, u2r (lowercase, family-level)Excluded Columnsland (near-zero variance), urgent (near-zero variance), num_outbound_cmds (near-zero variance), difficulty_scoreKnown IssuesNo Infinity/NaN; service has 70 unique values - high-cardinality categorical requiring special encoding in Stage 2
+UNSW-NB15 Schema Contract - Summary
+FieldValueSource FormatCSV with header row; multiple files (UNSW-NB15_1.csv through _4.csv) must be concatenatedTotal Columns49 (47 features + label + attack_cat)Categorical Columnsproto (~130 unique values), state (16 values), service (13 values)Label Columnlabel (binary: 0=normal, 1=attack); attack_cat (string: name of attack family - use this column)Excluded Columnssrcip, dstip, sport, dsport (identity leakage - would cause model to memorise IP addresses not patterns)Known Issuesproto has ~130 unique values; rare protocols (<0.1% frequency) must be binned to OTHER in Stage 2
+CICIDS-2017 Schema Contract - Summary
+FieldValueSource FormatCSV with header row; multiple daily files must be concatenated; column names have leading/trailing spacesTotal Columns~85 (varies slightly between daily files due to CICFlowMeter version differences)Categorical ColumnsMinimal; Flow ID, Source IP, Destination IP, Timestamp are identity fields to excludeLabel ColumnLabel (string); exact values vary: 'BENIGN', 'DoS Hulk', 'PortScan', etc.Excluded ColumnsFlow ID, Source IP, Destination IP, Source Port, Destination Port, Timestamp (identity/temporal leakage)Known IssuesInfinity values in Flow Bytes/s and Flow Packets/s (zero-duration flows); NaN in some statistical columns; column name whitespace padding; Infiltration class has ~36 records only
+KEY DESIGN DECISIONS
+• D3-1: How to handle the CICIDS-2017 column name whitespace issue. Recommended: strip all column name whitespace as the very first ingestion step, before any column-level logic.
+• D3-2: How to handle UNSW-NB15 multi-file concatenation - should deduplication be applied? Recommended: document duplicate row counts post-concatenation and deduplicate on (srcip, dstip, sport, dsport, stime) composite key.
+• D3-3: Should the schema contract be enforced at runtime (raising errors) or produce warnings? Recommended: raise on critical violations (wrong column count, missing label column); warn on quality issues (NaN counts above threshold).RISKS & MITIGATIONS
+• Risk: CICIDS-2017 daily files have different column counts due to CICFlowMeter version inconsistency. Mitigation: define the intersection of columns common to all daily files as the contract; document excluded columns per file.
+• Risk: UNSW-NB15 attack_cat column has inconsistent capitalisation across file versions. Mitigation: normalise to lowercase and strip whitespace before taxonomy mapping.
+• Risk: NSL-KDD column ordering assumed from external names file may not match actual file. Mitigation: validate column count on first read; compare sample values against known ranges.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-3.1Three schema contract documents produced, reviewed, and version-stampedEach contract peer-reviewed by at least one team member not who wrote itVC-3.2Schema violation definition documented per datasetViolation handling policy (error vs. warn) agreed and recordedVC-3.3Column exclusion list finalised for all three datasetsExclusion decisions are justified by data audit findings from Step 2, not assumptionsVC-3.4CICIDS-2017 daily file column intersection verifiedCommon column set documented; any file-specific columns listed as excluded
+
+STEP
+4Universal Data Quality Gate Design
+Define the dataset-agnostic quality filter every record must pass
+Objective
+The quality gate is a fixed set of validation rules applied identically to all three datasets after schema-aware parsing. It ensures that records entering Stage 2 meet a minimum quality standard without any dataset-specific special-casing. Crucially, it does not transform values - it only accepts, quarantines, or flags records.
+
+Sub-Tasks
+• Define the complete set of quality rules. The following are mandatory minimum rules:
+? Rule QG-01 (Label Validity): The native label value must exist in the dataset's known label vocabulary from the schema contract. Records with unrecognised labels are quarantined.
+? Rule QG-02 (Feature Count): The record must contain exactly the expected number of features after column exclusions. Records with wrong feature count are quarantined.
+? Rule QG-03 (Infinity Containment): Any feature containing Infinity must be resolved according to the dataset-specific rule defined in Step 2 (D2-1). This resolution is the ONLY transformation permitted in the quality gate.
+? Rule QG-04 (NaN Classification): NaN values must be classified as structural (e.g., single-packet flow statistics) or missing. Structural NaN ? replace with 0. True missing data ? flag record with has_missing = true but do NOT drop.
+? Rule QG-05 (Physical Bounds): Certain features have physically impossible negative values (e.g., negative byte counts, negative duration). Records violating physical bounds are flagged.
+? Rule QG-06 (Duplicate Detection): Exact duplicate records are detected and logged. One copy is retained; duplicates are counted per dataset in the audit log.
+• Define the quarantine policy: quarantined records are written to a separate quarantine file (not deleted) with a quarantine_reason field. Total quarantine rate must be logged.
+• Define the quality gate acceptance threshold: if more than 5% of records are quarantined from any single dataset, the pipeline raises a critical alert for human review.
+• Design the quality gate output: a boolean pass/fail flag per record, plus a list of rule codes that were triggered (for records that pass with warnings).
+
+Quality Gate Rules Reference Table
+Rule IDRule NameApplies ToAction on FailureTransformation Permitted?QG-01Label ValidityAll datasetsQuarantineNoQG-02Feature CountAll datasetsQuarantineNoQG-03Infinity HandlingCICIDS-2017Replace with 99th pct valueYes - bounded replacement onlyQG-04NaN ClassificationAll datasetsReplace structural NaN; flag true missingYes - zero fill for structural onlyQG-05Physical BoundsAll datasetsFlag with bounds_violation = trueNo - flag only, Stage 2 decidesQG-06Duplicate DetectionAll datasetsLog and retain one copyNo
+KEY DESIGN DECISIONS
+• D4-1: What is the 99th percentile replacement value for CICIDS-2017 Infinity? It must be computed on the TRAINING split only, then applied to both train and test. The exact value must be stored as a pipeline artefact.
+• D4-2: How are structural NaN values distinguished from true missing data? Design decision: define structural NaN as NaN in a statistical feature (std, min, max, mean) when the packet count is 1 - this is the known CICFlowMeter degenerate case.
+• D4-3: Should records with bounds_violation flags be passed to Stage 2 with the flag, or corrected? Recommended: pass with flag - Stage 2 owns the correction decision as part of normalization.RISKS & MITIGATIONS
+• Risk: The 5% quarantine threshold is exceeded for CICIDS-2017 due to Infinity prevalence - triggering a false critical alert. Mitigation: compute expected quarantine rate from the audit in Step 2 and set the threshold accordingly.
+• Risk: QG-03 replacement value is computed on the full dataset (train+test) causing data leakage. Mitigation: explicitly document that the 99th percentile is computed on training data only and stored as a serialised artefact.
+• Risk: QG-06 duplicate detection is computationally expensive on CICIDS-2017 (8GB). Mitigation: use hashing-based deduplication on a subset of key columns rather than full row comparison.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-4.1All 6 quality rules formally defined with input/output specificationRules reviewed and signed off by full teamVC-4.2Quarantine policy documented including file format and retention periodQuarantine file schema defined; example quarantine record writtenVC-4.3Acceptance threshold justified against Step 2 audit dataThreshold values are data-driven, not arbitraryVC-4.4Data leakage risk for QG-03 artefact explicitly documentedArtefact storage location and serialisation format specified
+
+STEP
+5Master Label Taxonomy Mapping Specification
+Define every label mapping with confidence rating and ambiguity resolution
+Objective
+This step produces the official, versioned taxonomy mapping specification - a document that determines exactly how every native label in every dataset is converted to a master label. This document is a primary research artefact and will be referenced directly in the paper's methodology section. Ambiguous mappings must be explicitly resolved here, not deferred to implementation.
+
+Sub-Tasks
+• Using the native label vocabulary from Step 2 (not documentation - actual observed string values), define the complete mapping table for all three datasets.
+• Assign a mapping confidence rating to each mapping: High, Medium, or Low. Criteria:
+? High: the native label has a clear, unambiguous semantic match to one master label.
+? Medium: the native label partially matches multiple master labels but has a clear dominant mapping.
+? Low: the native label is a catch-all or multi-stage category with no dominant mapping.
+• For every Medium and Low confidence mapping, write an explicit justification paragraph (3-5 sentences) documenting the rationale. These justifications go directly into the paper.
+• Resolve Decision D5-3: whether to include or exclude the CICIDS-2017 Infiltration class (~36 samples). Document the decision and its rationale.
+• Resolve Decision D5-4: whether the UNSW-NB15 Generic class is mapped to EXPLOIT or excluded due to semantic ambiguity.
+• Define the cross-dataset class distribution table: after mapping, how many samples belong to each master label from each dataset? This reveals whether MALWARE is statistically viable.
+
+Ambiguous Mapping Resolution Decisions
+Decision IDClass (Dataset)OptionsRecommended ResolutionJustification SummaryD5-1Fuzzers (UNSW-NB15)PROBE vs. EXPLOITPROBE - Medium confidenceFuzzing is reconnaissance-first behaviour; exploitation intent is not guaranteed by the traffic features themselvesD5-2Analysis (UNSW-NB15)PROBE vs. EXPLOITPROBE - Medium confidenceUNSW-NB15 Analysis attacks include port and service enumeration, semantically matching reconnaissanceD5-3Infiltration (CICIDS-2017)EXPLOIT vs. ExcludeEXCLUDE - recommendedOnly ~36 samples; multi-stage behaviour; statistical unreliability outweighs inclusion benefitD5-4Generic (UNSW-NB15)EXPLOIT vs. ExcludeEXPLOIT, flag Low confidenceGeneric attacks use unclassified exploit payloads; flag with mapping_confidence=Low for sensitivity analysisD5-5Heartbleed (CICIDS-2017)EXPLOIT vs. MALWAREEXPLOIT - High confidenceHeartbleed is a memory disclosure exploit (CVE), not malware; correctly belongs in EXPLOIT
+KEY DESIGN DECISIONS
+• D5-6: Should the taxonomy mapping be stored as a static lookup table (JSON/YAML) or computed at runtime? Recommended: static versioned YAML file committed to the repository. This makes mapping changes a tracked, reviewable commit.
+• D5-7: How should the mapping_confidence field propagate through the pipeline? Recommended: preserve it through all stages; use it in the paper's ablation study to show whether excluding Low-confidence mappings changes results.
+• D5-8: If MALWARE class total across all datasets is below a minimum threshold (e.g., 200 samples), should it be merged with another class? Recommended: keep separate but document the count - SMOTE in Stage 2 will address imbalance.RISKS & MITIGATIONS
+• Risk: Taxonomy mapping is applied at code-level without version control, making it impossible to reproduce results after a mapping change. Mitigation: mandate YAML-based mapping file with semantic version number.
+• Risk: Excluding Infiltration and Generic reduces the training set and may make certain attack types undetectable. Mitigation: document excluded samples in the paper; run a sensitivity analysis showing model performance with and without excluded classes.
+• Risk: Cross-dataset master label distribution is severely imbalanced (e.g., NORMALL >> MALWARE by 1000:1). Mitigation: document the ratio now; the SMOTE and class-weight strategy in Stage 2 must be designed around the actual counts discovered here.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-5.1Complete mapping table produced covering 100% of native labels across all three datasetsNo native label is unmapped or implicitly ignoredVC-5.2All ambiguous mappings resolved with documented justificationDecisions D5-1 through D5-5 recorded in a signed-off decision logVC-5.3Cross-dataset master label distribution table computed and reviewedDistribution table reveals MALWARE sample count; team confirms it is sufficient for SMOTE in Stage 2VC-5.4Taxonomy mapping YAML file created and committed to version controlFile is version-stamped; mapping can be reproduced from any git commit
+
+STEP
+6Ingestion Pipeline Architecture Design
+Specify the three-phase ingestion flow before any code is written
+Objective
+Having defined the schema contracts (Step 3), the quality gate (Step 4), and the taxonomy mapping (Step 5), this step integrates them into a complete ingestion pipeline design. The output is an architecture document - a component diagram, a data flow specification, and an interface contract - that developers implement directly.
+
+Three-Phase Pipeline Architecture
+
+PhaseComponentInputOutputKey ResponsibilityPhase ASchema-Aware ParserRaw CSV/Parquet filesParsed DataFrame per datasetApplies schema contract; enforces column selection and data type casting; handles CICIDS-2017 whitespace strippingPhase BUniversal Quality GateParsed DataFrame per datasetQuality-annotated DataFrame + quarantine fileApplies QG-01 through QG-06; attaches quality flags; resolves Infinity and structural NaNPhase CTaxonomy Label AssignerQuality-annotated DataFrameFinal Stage 1 output recordsApplies versioned YAML mapping; attaches master_label, mapping_confidence, source_dataset, original_label fields
+Sub-Tasks
+• Design the interface between Phase A and Phase B: define the exact column specification that Phase A must guarantee as output, regardless of which dataset was ingested.
+• Design the interface between Phase B and Phase C: define how quality flags travel through the pipeline (as additional columns on the record, not as separate files).
+• Specify the training/inference pipeline split: SMOTE, the 99th percentile QG-03 artefact, and any statistics computed during ingestion must be fitted on training data only and stored as serialised artefacts.
+• Design the combined dataset assembly: after Phase C processes all three datasets independently, they are concatenated into a single unified corpus. Specify the deduplication check applied at the concatenation point.
+• Design the ingestion pipeline's logging output: each run must emit a summary report containing record counts at each phase, quarantine rates, master label distribution, and source dataset distribution.
+
+Component Interface Specification
+InterfaceFromToRequired Fields in HandoffPhase A ? BSchema-Aware ParserQuality GateAll included features (typed), native_label, source_dataset, schema_versionPhase B ? CQuality GateLabel AssignerAll Phase A fields + quality_pass (bool), quality_flags (list), has_missing (bool), bounds_violation (bool)Phase C ? OutLabel AssignerStage 2 PreprocessingAll Phase B fields + master_label, mapping_confidence, original_label, flag_for_review (bool)Artefact StoreQuality Gate (train)Quality Gate (infer)qg03_replacement_values.json - 99th percentile per affected column, computed on train split only
+KEY DESIGN DECISIONS
+• D6-1: Should the three datasets be processed sequentially or in parallel? Recommended: design for parallel processing (one process per dataset) with a final synchronised concatenation step. Document dependencies.
+• D6-2: At what point is the 80/20 train/test split applied? Recommended: immediately after Phase C concatenation, before any artefact computation. The split boundary must be established before any statistics are computed.
+• D6-3: Should the ingestion pipeline be re-runnable (idempotent)? Recommended: yes - running the pipeline twice on the same input must produce identical output. This requires deterministic sampling and fixed random seeds.RISKS & MITIGATIONS
+• Risk: The artefact store (QG-03 replacement values) is not serialised and the quality gate behaves differently at inference time. Mitigation: make artefact serialisation a required pipeline exit condition, not optional.
+• Risk: Concatenating three datasets produces a dataset where one source dataset dominates (e.g., CICIDS-2017 with millions of records vs. NSL-KDD). Mitigation: log source_dataset distribution after concatenation; use this in the dual-stratified split design from Step 2.
+• Risk: flag_for_review records (Low-confidence mappings) contaminate training without the team realising. Mitigation: the pipeline summary report must explicitly list the count and percentage of flag_for_review records in both train and test splits.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-6.1All three component interface specifications reviewed and signed offInterfaces are complete enough that two developers could independently implement any two phases and have them integrate correctlyVC-6.2Artefact store design reviewed for data leakageTrain/test split boundary explicitly shown to precede all artefact computation in the architecture diagramVC-6.3Ingestion pipeline summary report format definedMock summary report written by hand to confirm it contains all required informationVC-6.4Idempotency requirement documented with random seed policyGlobal random seed strategy defined and documented
+
+STEP
+7Output Record Schema Definition
+Define the canonical Stage 1 output - the contract with Stage 2
+Objective
+The output record schema is the contractual boundary between Stage 1 and Stage 2. It defines exactly what Stage 2 will receive and must never be changed without a versioned update and team sign-off. This schema is also the format used for real-time inference - every live network flow processed at deployment time must conform to this schema.
+
+Canonical Output Record Schema
+Field NameTypeSourceDescription & Stage 2 GuidancefeaturesFloat array [196]Stage 1 ingestionAll included numerical and pre-encoded categorical features. Values are RAW - not normalised. Stage 2 owns all scaling.source_datasetStringSchema-Aware ParserOne of: NSL-KDD, UNSW-NB15, CICIDS-2017. Required for dual-stratified splitting in Stage 2.original_labelStringSchema-Aware ParserExact native label string from the source dataset. Preserved for traceability and audit.master_labelString (enum)Label AssignerOne of: NORMALL, DoSD, PROBE, EXPLOIT, MALWARE. Primary target for all downstream models.mapping_confidenceString (enum)Label AssignerOne of: High, Medium, Low. Governs SMOTE strategy in Stage 2 and ablation study scope.flag_for_reviewBooleanLabel AssignerTrue for Low-confidence mappings. Stage 2 may optionally exclude these records from training.quality_flagsList[String]Quality GateList of triggered quality rule codes (e.g., ['QG-04', 'QG-05']). Empty list if no issues.has_missingBooleanQuality GateTrue if any true missing values were detected. Stage 2 must not apply SMOTE to records where has_missing = True without imputation.bounds_violationBooleanQuality GateTrue if any physical impossibility was detected. Stage 2 must clip or correct before scaling.ingestion_timestampISO 8601 StringPipeline runnerWhen this record was processed. Required for real-time inference audit trail.schema_versionStringPipeline runnerVersion of the schema contract and taxonomy mapping YAML used to produce this record.
+Feature Array Alignment Policy
+The 196-element feature array is the most consequential design decision in Stage 1. The policy below governs how datasets with fewer than 196 native features populate this array.
+
+FEATURE ALIGNMENT POLICY - Version 1.0
+• The 196-element feature array is organised into 8 semantic groups (Flow Identity, Protocol State, Service Context, Traffic Rate, Statistical Profile, Connection Behaviour, Content Features, Engineered Features).
+• Each semantic group reserves a fixed index range within the 196-element array. These ranges are defined in the Semantic Feature Schema document (produced in Stage 2 design).
+• When a dataset has no feature for a group's index range, that range is populated with a sentinel value of -1.0 (not 0.0, which is a valid normalised value). Stage 2 must treat -1.0 as 'feature absent' and handle it distinctly from true zero values.
+• The sentinel value approach is preferred over zero-padding because it preserves the semantic distinction between 'this feature is zero' and 'this feature does not exist in this dataset'. The VAE encoder must learn to ignore -1.0 sentinel values, not conflate them with zero-rate traffic.
+• The mapping from dataset-native column to semantic group index is defined in a second YAML artefact: feature_alignment_map.yaml. This file is versioned and committed to the repository.
+KEY DESIGN DECISIONS
+• D7-1: Sentinel value of -1.0 vs. learned default per semantic group. Recommended: -1.0 is simpler and forces the VAE to learn a 'missing feature' representation. A learned default adds complexity with marginal benefit at this stage.
+• D7-2: Should the output record be stored as Parquet or CSV? Recommended: Parquet - it preserves data types (critically, boolean fields and float precision), is significantly faster to read, and is natively supported by all ML frameworks.
+• D7-3: Should the feature array be stored as a single column of arrays or as 196 individual columns? Recommended: 196 individual columns for Parquet storage; the array is assembled in memory at training time by the Stage 2 loader.RISKS & MITIGATIONS
+• Risk: The sentinel value -1.0 falls outside the Min-Max [0,1] range, causing Stage 2's normaliser to produce unexpected outputs. Mitigation: Stage 2 must apply a sentinel mask before normalization - document this as a Stage 2 requirement in this specification.
+• Risk: schema_version mismatches between Stage 1 and Stage 2 cause silent incompatibilities as the project evolves. Mitigation: Stage 2 must validate schema_version on first record read and raise if it doesn't match the expected version.
+• Risk: The feature alignment YAML becomes a maintenance burden as datasets are updated. Mitigation: freeze the YAML for v1.0; any dataset update triggers a formal schema review, not an ad-hoc file edit.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-7.1Output record schema reviewed and signed off by all team membersSchema is version-stamped; no field definitions are ambiguousVC-7.2Sentinel value policy documented and Stage 2 requirement raisedStage 2 design specification includes a mask step for -1.0 sentinel values before normalizationVC-7.3Feature alignment YAML structure defined (content populated in Stage 2 design)YAML structure validated against the output schema; column-to-index mapping format agreedVC-7.4Real-time inference compatibility confirmedOutput record schema is identical for batch and real-time mode; no batch-only fields exist
+
+STEP
+8Design Specification Review & Sign-Off
+Consolidate, validate, and formally approve the Stage 1 design before implementation begins
+Objective
+This final step treats the design specification itself as a deliverable that requires the same rigour as code. A structured review process catches design flaws before they become implementation bugs, ensures every team member has common understanding, and produces the formal sign-off that gates the start of Stage 1 implementation.
+
+Sub-Tasks
+• Compile the complete Stage 1 Design Specification Package. It must contain exactly the following artefacts:
+? This document (Design Specification v1.0)
+? Dataset Audit Reports for all three datasets (from Step 2)
+? Three Schema Contract documents (from Step 3)
+? Quality Gate Rule Definitions document (from Step 4)
+? Taxonomy Mapping YAML file and Ambiguity Resolution Decision Log (from Step 5)
+? Ingestion Pipeline Architecture Diagram and Interface Specifications (from Step 6)
+? Output Record Schema definition and Feature Alignment YAML structure (from Step 7)
+• Conduct a structured design review with the full team. Each reviewer is assigned a specific review focus:
+? Reviewer 1 (Quantum/VAE lead): verify the output schema is compatible with Stage 3 VAE requirements, especially the -1.0 sentinel and [0,1] normalisation requirement.
+? Reviewer 2 (Classical ML lead): verify the SMOTE and class-weight strategy implied by the taxonomy distribution is sound.
+? Reviewer 3 (Explainability lead): verify that original_label and mapping_confidence fields are preserved in the output schema and will be available for SHAP analysis in Stage 6.
+? Reviewer 4 (Integration lead): verify that the real-time inference path through Stage 1 is complete, with no training-only components in the inference path.
+• Resolve all review findings. Classify each finding as: Critical (blocks sign-off), Major (must be resolved before implementation begins), or Minor (can be addressed during implementation).
+• Obtain formal sign-off from all four team members. Record the sign-off in the repository (as a tag on the final commit of the design specification branch).
+• Transfer open decisions and known risks to the implementation task tracker. Every Key Design Decision (D1-x through D7-x) from this document must have a corresponding implementation task that confirms its resolution.
+
+Design Review Checklist
+CategoryReview ItemReviewerStatusCompletenessAll 7 previous steps have produced their required artefactsIntegration Lead[ ] Pass / [ ] FailData IntegrityNo transformation is performed before the train/test split boundaryQuantum/VAE Lead[ ] Pass / [ ] FailData IntegrityQG-03 artefact is computed on training data onlyClassical ML Lead[ ] Pass / [ ] FailTaxonomy100% of native labels across all three datasets are mappedAll Reviewers[ ] Pass / [ ] FailTaxonomyAll ambiguous mapping decisions are documented with justificationExplainability Lead[ ] Pass / [ ] FailSchemaOutput record schema has no batch-only fieldsIntegration Lead[ ] Pass / [ ] FailSchemaSentinel value -1.0 requirement is forwarded to Stage 2 specQuantum/VAE Lead[ ] Pass / [ ] FailInferenceReal-time inference path through Stage 1 is complete and documentedIntegration Lead[ ] Pass / [ ] FailPaper ReadinessDataset provenance, mapping justifications, and exclusion decisions are documented for methodology sectionAll Reviewers[ ] Pass / [ ] Fail
+KEY DESIGN DECISIONS
+• D8-1: What constitutes 'done' for Stage 1 design? Recommended: all Critical and Major review findings resolved; all team members have signed off; the specification package is tagged in version control.
+• D8-2: Can Stage 1 implementation begin before Stage 2 design is complete? Recommended: yes - Stage 1 implementation can begin in parallel with Stage 2 design, but the output schema (Step 7) is frozen and cannot change without a formal revision.RISKS & MITIGATIONS
+• Risk: Review findings are verbal and not recorded, leading to design drift during implementation. Mitigation: all review findings must be recorded as GitHub issues or equivalent task tracker items before the review meeting ends.
+• Risk: Sign-off is informal (verbal agreement) and cannot be traced if disputes arise. Mitigation: sign-off is recorded as a git tag on the specification commit, with a sign-off message from each team member.
+  VALIDATION CHECKPOINTS
+CheckpointCriteriaExit ConditionVC-8.1All 7 artefacts from previous steps compiled into the specification packagePackage is complete; no placeholder sections remainVC-8.2Structured review conducted with all four reviewersReview meeting minutes recorded; all findings classified as Critical, Major, or MinorVC-8.3All Critical and Major findings resolvedNo open Critical or Major findings; resolution documented for eachVC-8.4Formal sign-off obtained from all team membersGit tag created on final specification commit; Stage 1 implementation is cleared to begin
+
+  Stage 1 Plan Summary
+
+The table below summarises all eight steps, their primary deliverable, the critical decision that must be resolved, and the key risk to monitor. Use this as a daily status tracker during execution.
+
+StepTitlePrimary DeliverableCritical DecisionKey Risk1Environment & Repository SetupDev environment + stratified sample filesData storage location and read-only raw data policyLibrary version conflicts across team machines2Dataset Acquisition & Initial AuditDataset Audit Report × 3CICIDS-2017 Infinity treatment policyAssuming NaN = missing rather than structural3Per-Dataset Schema ContractSchema contract documents × 3CICIDS-2017 column whitespace and daily file intersectionDaily file column count inconsistency in CICIDS-20174Universal Quality Gate DesignQuality gate rule definitions + quarantine policyQG-03 artefact computed on train split onlyData leakage via 99th percentile computed on full dataset5Taxonomy Mapping SpecificationVersioned taxonomy YAML + decision logInfiltration and Generic class inclusion/exclusionMALWARE class below minimum sample threshold6Ingestion Pipeline ArchitectureComponent diagram + interface specificationsTrain/test split boundary placementArtefact store not serialised - inference behaviour differs7Output Record Schema DefinitionCanonical output schema + feature alignment YAML structureSentinel value -1.0 policy for absent featuresSentinel value outside Stage 2 normaliser range8Design Review & Sign-OffSigned-off specification package + git tagFormal sign-off process and finding classificationVerbal review findings not recorded - design drift
+FORWARD COMPATIBILITY NOTE - Stage 2, 3, and 6 Requirements Raised by This Specification
+• Stage 2 Requirement: Must implement a sentinel mask for -1.0 values before normalization (raised by Step 7, Decision D7-1).
+• Stage 2 Requirement: Must validate schema_version field on first record read and raise on mismatch (raised by Step 7, Risk mitigation).
+• Stage 2 Requirement: Must use dual stratification (master_label × source_dataset) for train/test splitting (raised by Step 5).
+• Stage 3 (VAE) Requirement: Latent vector must be bounded to [0, p] before angle encoding - Stage 1 output is unbounded raw features; this is a Stage 2/3 boundary responsibility, not Stage 1.
+• Stage 6 (SHAP) Requirement: original_label, mapping_confidence, and flag_for_review fields must be preserved through all stages to enable per-class explainability analysis.
+Stage 1 Design Specification v1.0  |  Explainable Hybrid Quantum-Classical NIDS  |  Confidential - Internal Research Use
