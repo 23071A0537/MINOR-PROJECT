@@ -1,0 +1,10 @@
+{
+  "selected_model": "VAE-A",
+  "reason": "VAE-A with near-zero variance features (167 dims). Ablation run.",
+  "vae_a_val_recon": 0.00025771122057558903,
+  "vae_a_val_kl": 12.007850829591142,
+  "vae_a_best_epoch": 117,
+  "vae_a_input_dim": 167,
+  "z_train_path": "vae_a_z_train.parquet",
+  "z_test_path": "vae_a_z_test.parquet"
+}
