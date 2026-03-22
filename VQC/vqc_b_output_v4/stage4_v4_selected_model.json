@@ -1,0 +1,27 @@
+{
+  "selected_vqc": "VQC-A",
+  "vqc_a_f1_macro": 0.6979650544599114,
+  "vqc_b_f1_macro": 0.6915017735753907,
+  "best_f1_macro": 0.6979650544599114,
+  "target_met": true,
+  "vqc_a_malware_f1": 0.19327190912704706,
+  "vqc_b_malware_f1": 0.19489450982568374,
+  "winner_T": 0.3,
+  "winner_test_proba": "vqc-a_test_proba.parquet",
+  "architecture_v4": {
+    "quantum": "8 qubits, ZZ_REPS=2, RA_REPS=2, 24 params",
+    "classical_head": "8\u2192128\u21925 (Tanh+Dense), 1797 params",
+    "loss": "focal (gamma=2.0) + class_weights + L2=0.0001",
+    "optimizer": "Adam cosine-LR [0.01\u21921e-05] warmup=10",
+    "n_train": 20000,
+    "n_restarts": 2
+  },
+  "v2_baselines": {
+    "a": 0.3754,
+    "b": 0.3387
+  },
+  "delta_vs_v2": {
+    "a": 0.3225650544599114,
+    "b": 0.35280177357539066
+  }
+}

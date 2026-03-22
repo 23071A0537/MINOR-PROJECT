@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-03-20T02:21:25.168097+00:00",
+  "method": "sklearn compute_class_weight balanced on post-SMOTE y_train",
+  "smote_version": "v2",
+  "class_weights": {
+    "0": 0.26263988691572343,
+    "1": 1.5220112438914475,
+    "2": 3.174722666666667,
+    "3": 5.01272,
+    "4": 47.62084
+  },
+  "class_names": {
+    "0": "Normal",
+    "1": "DoS/DDoS",
+    "2": "Recon",
+    "3": "Exploit",
+    "4": "Malware"
+  }
+}

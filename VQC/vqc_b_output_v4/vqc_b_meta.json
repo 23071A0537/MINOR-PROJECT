@@ -1,0 +1,42 @@
+{
+  "tag": "VQC-B",
+  "vae_source": "VAE-B (140 features, WITHOUT near-zero variance)",
+  "best_seed": 42,
+  "best_T": 0.3,
+  "val_f1_pre_T": 0.8619910559339257,
+  "val_f1_post_T": 0.8619910559339257,
+  "test_f1_macro_raw": 0.6915017735753907,
+  "test_f1_macro_scaled": 0.6915017735753907,
+  "test_f1_macro_final": 0.6915017735753907,
+  "f1_cls": {
+    "NORMALL": 0.9664903238208603,
+    "DoSD": 0.9429972612709345,
+    "PROBE": 0.7408195697341177,
+    "EXPLOIT": 0.6123072030058,
+    "MALWARE": 0.19489450982568374
+  },
+  "n_restarts": 2,
+  "seeds": [
+    42,
+    123
+  ],
+  "n_quantum_params": 24,
+  "n_classical_params": 1797,
+  "hidden_dim": 128,
+  "focal_gamma": 2.0,
+  "n_train": 20000,
+  "hybrid_counts": {
+    "0": 8000,
+    "1": 3000,
+    "2": 3000,
+    "3": 3000,
+    "4": 3000
+  },
+  "class_weights": [
+    1.0,
+    2.6666667461395264,
+    2.6666667461395264,
+    2.6666667461395264,
+    2.6666667461395264
+  ]
+}
