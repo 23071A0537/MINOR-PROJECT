@@ -28,13 +28,12 @@ def stratified_indices(y_values: np.ndarray, per_class: int, seed: int) -> np.nd
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Sample combined dataset and export Excel.")
-    parser.add_argument("--config", default="pipeline/config.json")
+    parser.add_argument("--config", default="configs/pipeline/config.json")
     parser.add_argument("--sample-size", type=int, default=50)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     config_path = Path(args.config).resolve()
-    project_root = config_path.parent.parent
 
     pipeline_dir = Path(__file__).resolve().parent
     sys.path.insert(0, str(pipeline_dir))
@@ -42,6 +41,7 @@ def main() -> None:
     from pipeline_utils import load_json, resolve_path, ensure_exists
 
     config = load_json(config_path)
+    project_root = resolve_path(config_path.parent, config["project_root"])
     live_cfg = config["live_inference"]
 
     stage2_dir = project_root / "PreProcessing" / "stage_2_with_zero_v2"
@@ -71,10 +71,15 @@ def main() -> None:
     vae_cfg_path = resolve_path(project_root, artifacts["vae_config"])
     xgb_model_path = resolve_path(project_root, artifacts["xgb_model"])
     rf_model_path = resolve_path(project_root, artifacts["rf_model"])
-    vqc_model_path = resolve_path(project_root, artifacts["vqc_model"])
+    vqc_model_value = str(artifacts.get("vqc_model", "")).strip()
+    vqc_model_path = resolve_path(project_root, vqc_model_value) if vqc_model_value else None
+    require_vqc = bool(live_cfg.get("require_vqc", True))
 
     required = [stage2_path, vae_ckpt_path, vae_cfg_path, xgb_model_path, rf_model_path]
     ensure_exists(required, "inference artefacts")
+
+    if require_vqc and vqc_model_path is None:
+        raise ValueError("live_inference.artifacts.vqc_model must be set when require_vqc=true.")
 
     artefacts = li.load_stage2_artefacts(stage2_path)
     feature_names = artefacts["feature_names"]
@@ -87,7 +92,10 @@ def main() -> None:
 
     xgb_model = li.load_model(xgb_model_path)
     rf_model = li.load_model(rf_model_path)
-    vqc_model = li.load_model(vqc_model_path) if vqc_model_path.exists() else None
+    vqc_model = li.load_model(vqc_model_path) if (vqc_model_path is not None and vqc_model_path.exists()) else None
+
+    if require_vqc and vqc_model is None:
+        raise FileNotFoundError("VQC model not found or path is not configured while require_vqc=true.")
 
     xgb_proba = li.predict_proba(xgb_model, z_angles)
     rf_proba = li.predict_proba(rf_model, z_angles)
@@ -133,7 +141,7 @@ def main() -> None:
         }
     )
 
-    output_path = project_root / "pipeline" / "sample_predictions.xlsx"
+    output_path = project_root / "artifacts" / "inference" / "sample_predictions.xlsx"
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         out_df.to_excel(writer, index=False, sheet_name="samples")
         summary.to_excel(writer, index=False, sheet_name="summary")

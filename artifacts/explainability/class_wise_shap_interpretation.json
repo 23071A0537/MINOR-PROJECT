@@ -1,0 +1,217 @@
+{
+  "run_metadata": {
+    "generated_at": "2026-03-28T16:26:25.339734+00:00",
+    "source_file": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\pipeline\\live_predictions.json",
+    "source_created_at": "2026-03-28T16:26:22.817905Z",
+    "weights": {
+      "vqc": 0.0,
+      "xgb": 0.6111111111111112,
+      "rf": 0.38888888888888884
+    },
+    "total_predictions": 500,
+    "total_shap_explanations": 200,
+    "class_order": [
+      "NORMALL",
+      "DoSD",
+      "PROBE",
+      "EXPLOIT",
+      "MALWARE"
+    ]
+  },
+  "class_wise_explanations": [
+    {
+      "class_name": "NORMALL",
+      "support": {
+        "predicted_count": 90,
+        "probability_observations": 500,
+        "shap_samples_available": 33
+      },
+      "confidence": {
+        "mean_predicted_confidence": 0.897472,
+        "mean_probability_across_all_samples": 0.246331
+      },
+      "top_positive_drivers": [
+        {
+          "feature": "z_7",
+          "mean_shap": 0.192351
+        },
+        {
+          "feature": "z_6",
+          "mean_shap": 0.032157
+        },
+        {
+          "feature": "z_2",
+          "mean_shap": 0.030283
+        }
+      ],
+      "top_negative_drivers": [
+        {
+          "feature": "z_3",
+          "mean_shap": -0.036015
+        },
+        {
+          "feature": "z_4",
+          "mean_shap": -0.025521
+        },
+        {
+          "feature": "z_5",
+          "mean_shap": -0.002298
+        }
+      ],
+      "technical_interpretation": "Classified as NORMALL when positive SHAP contributions such as z_7 (+0.1924), z_6 (+0.0322), z_2 (+0.0303) outweigh opposing signals such as z_3 (-0.0360), z_4 (-0.0255), z_5 (-0.0023) in the latent feature space.",
+      "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
+      "limitation_notes": [
+        "Only a subset of predicted samples includes SHAP vectors because live inference limits explained rows."
+      ]
+    },
+    {
+      "class_name": "DoSD",
+      "support": {
+        "predicted_count": 63,
+        "probability_observations": 500,
+        "shap_samples_available": 25
+      },
+      "confidence": {
+        "mean_predicted_confidence": 0.999455,
+        "mean_probability_across_all_samples": 0.126243
+      },
+      "top_positive_drivers": [
+        {
+          "feature": "z_7",
+          "mean_shap": 0.425384
+        },
+        {
+          "feature": "z_0",
+          "mean_shap": 0.1975
+        },
+        {
+          "feature": "z_3",
+          "mean_shap": 0.092099
+        }
+      ],
+      "top_negative_drivers": [],
+      "technical_interpretation": "Classified as DoSD when positive SHAP contributions such as z_7 (+0.4254), z_0 (+0.1975), z_3 (+0.0921) outweigh opposing signals such as none in the latent feature space.",
+      "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
+      "limitation_notes": [
+        "Only a subset of predicted samples includes SHAP vectors because live inference limits explained rows."
+      ]
+    },
+    {
+      "class_name": "PROBE",
+      "support": {
+        "predicted_count": 313,
+        "probability_observations": 500,
+        "shap_samples_available": 127
+      },
+      "confidence": {
+        "mean_predicted_confidence": 0.87254,
+        "mean_probability_across_all_samples": 0.555894
+      },
+      "top_positive_drivers": [
+        {
+          "feature": "z_3",
+          "mean_shap": 0.355562
+        },
+        {
+          "feature": "z_2",
+          "mean_shap": 0.213549
+        },
+        {
+          "feature": "z_0",
+          "mean_shap": 0.165652
+        }
+      ],
+      "top_negative_drivers": [
+        {
+          "feature": "z_7",
+          "mean_shap": -0.109055
+        },
+        {
+          "feature": "z_6",
+          "mean_shap": -0.052162
+        }
+      ],
+      "technical_interpretation": "Classified as PROBE when positive SHAP contributions such as z_3 (+0.3556), z_2 (+0.2135), z_0 (+0.1657) outweigh opposing signals such as z_7 (-0.1091), z_6 (-0.0522) in the latent feature space.",
+      "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
+      "limitation_notes": [
+        "Only a subset of predicted samples includes SHAP vectors because live inference limits explained rows."
+      ]
+    },
+    {
+      "class_name": "EXPLOIT",
+      "support": {
+        "predicted_count": 18,
+        "probability_observations": 500,
+        "shap_samples_available": 8
+      },
+      "confidence": {
+        "mean_predicted_confidence": 0.968647,
+        "mean_probability_across_all_samples": 0.035919
+      },
+      "top_positive_drivers": [
+        {
+          "feature": "z_7",
+          "mean_shap": 0.323254
+        },
+        {
+          "feature": "z_2",
+          "mean_shap": 0.288483
+        },
+        {
+          "feature": "z_1",
+          "mean_shap": 0.116394
+        }
+      ],
+      "top_negative_drivers": [
+        {
+          "feature": "z_4",
+          "mean_shap": -0.001601
+        }
+      ],
+      "technical_interpretation": "Classified as EXPLOIT when positive SHAP contributions such as z_7 (+0.3233), z_2 (+0.2885), z_1 (+0.1164) outweigh opposing signals such as z_4 (-0.0016) in the latent feature space.",
+      "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
+      "limitation_notes": [
+        "Only a subset of predicted samples includes SHAP vectors because live inference limits explained rows."
+      ]
+    },
+    {
+      "class_name": "MALWARE",
+      "support": {
+        "predicted_count": 16,
+        "probability_observations": 500,
+        "shap_samples_available": 7
+      },
+      "confidence": {
+        "mean_predicted_confidence": 0.84815,
+        "mean_probability_across_all_samples": 0.035613
+      },
+      "top_positive_drivers": [
+        {
+          "feature": "z_5",
+          "mean_shap": 0.261168
+        },
+        {
+          "feature": "z_1",
+          "mean_shap": 0.20277
+        },
+        {
+          "feature": "z_7",
+          "mean_shap": 0.199492
+        }
+      ],
+      "top_negative_drivers": [],
+      "technical_interpretation": "Classified as MALWARE when positive SHAP contributions such as z_5 (+0.2612), z_1 (+0.2028), z_7 (+0.1995) outweigh opposing signals such as none in the latent feature space.",
+      "confidence_note": "Moderate confidence regime for this class in observed predictions (0.60 <= mean confidence < 0.85).",
+      "limitation_notes": [
+        "Only a subset of predicted samples includes SHAP vectors because live inference limits explained rows."
+      ]
+    }
+  ],
+  "confidence_and_limits": {
+    "global_limitations": [
+      "The source file provides SHAP values aligned to the predicted class per explained sample, not a full class-by-class SHAP tensor for every sample.",
+      "Class-wise SHAP interpretation for classes with zero predicted support is necessarily limited.",
+      "Results are specific to the current live inference run and should be re-generated for new data distributions."
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -10,6 +11,18 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
+INFERENCE_DIR = Path(__file__).resolve().parent
+EXPLAINABILITY_DIR = INFERENCE_DIR.parent / "explainability"
+for _path in (INFERENCE_DIR, EXPLAINABILITY_DIR):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
+
+from lime_shared_helper import (
+    build_lime_explainer,
+    compute_shap_lime_consistency,
+    explain_lime_instance,
+    write_json,
+)
 from pipeline_utils import load_json, resolve_path, ensure_exists
 
 
@@ -257,8 +270,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run live inference on new CSV data.")
     parser.add_argument(
         "--config",
-        default="pipeline/config.json",
-        help="Path to config JSON (default: pipeline/config.json)",
+        default="configs/pipeline/config.json",
+        help="Path to config JSON (default: configs/pipeline/config.json)",
     )
     args = parser.parse_args()
 
@@ -274,15 +287,19 @@ def main() -> None:
     vae_cfg_path = resolve_path(project_root, artifacts["vae_config"])
     xgb_model_path = resolve_path(project_root, artifacts["xgb_model"])
     rf_model_path = resolve_path(project_root, artifacts["rf_model"])
-    vqc_model_path = resolve_path(project_root, artifacts["vqc_model"])
+    vqc_model_value = str(artifacts.get("vqc_model", "")).strip()
+    vqc_model_path = resolve_path(project_root, vqc_model_value) if vqc_model_value else None
 
     require_xgb = live_cfg.get("require_xgb", True)
+    require_vqc = bool(live_cfg.get("require_vqc", True))
     required = [stage2_path, vae_ckpt_path, vae_cfg_path, rf_model_path]
     if require_xgb:
         required.append(xgb_model_path)
     ensure_exists(required, "live inference artefacts")
 
-    if live_cfg.get("require_vqc", True):
+    if require_vqc:
+        if vqc_model_path is None:
+            raise ValueError("live_inference.artifacts.vqc_model must be set when require_vqc=true.")
         ensure_exists([vqc_model_path], "VQC model")
 
     artefacts = load_stage2_artefacts(stage2_path)
@@ -298,8 +315,17 @@ def main() -> None:
 
     xgb_model = load_model(xgb_model_path) if xgb_model_path.exists() else None
     rf_model = load_model(rf_model_path)
+    if hasattr(rf_model, "verbose"):
+        rf_model.verbose = 0
+
+    if xgb_model is not None and hasattr(xgb_model, "set_params"):
+        try:
+            xgb_model.set_params(verbosity=0)
+        except Exception:
+            pass
+
     vqc_model = None
-    if vqc_model_path.exists():
+    if vqc_model_path is not None and vqc_model_path.exists():
         vqc_model = load_model(vqc_model_path)
 
     weights = live_cfg["weights"]
@@ -312,6 +338,16 @@ def main() -> None:
             raise FileNotFoundError("XGBoost model not found. Set require_xgb=false to continue.")
         w_xgb = 0.0
 
+    def _load_background_frame(background_value: str, label: str) -> pd.DataFrame:
+        background_path = resolve_path(project_root, background_value)
+        ensure_exists([background_path], label)
+        suffix = background_path.suffix.lower()
+        if suffix == ".parquet":
+            return pd.read_parquet(background_path)
+        if suffix == ".csv":
+            return pd.read_csv(background_path)
+        raise ValueError(f"Unsupported background file type for {label}: {background_path}")
+
     shap_cfg = live_cfg.get("shap", {})
     shap_enabled = bool(shap_cfg.get("enabled", False))
     shap_explainer = None
@@ -319,10 +355,28 @@ def main() -> None:
     shap_max_samples = int(shap_cfg.get("max_samples", 1))
 
     if shap_enabled:
-        background_path = resolve_path(project_root, shap_cfg["background"])
-        ensure_exists([background_path], "SHAP background")
-        shap_background = pd.read_parquet(background_path)
+        shap_background = _load_background_frame(shap_cfg["background"], "SHAP background")
 
+    lime_cfg = live_cfg.get("lime", {})
+    lime_enabled = bool(lime_cfg.get("enabled", True))
+    lime_explainer = None
+    lime_background = None
+    lime_random_state = int(lime_cfg.get("random_state", 42))
+    lime_num_features = int(lime_cfg.get("num_features", 10))
+    lime_num_samples = int(lime_cfg.get("num_samples", 2000))
+    default_lime_max = min(shap_max_samples, 50) if shap_enabled else 50
+    lime_max_samples = int(lime_cfg.get("max_samples", default_lime_max))
+    lime_consistency_top_k = int(lime_cfg.get("consistency_top_k", 5))
+    lime_output_json = resolve_path(
+        project_root,
+        lime_cfg.get("output_json", "artifacts/inference/lime_local_explanations.json"),
+    )
+
+    lime_background_value = lime_cfg.get("background")
+    if lime_background_value:
+        lime_background = _load_background_frame(lime_background_value, "LIME background")
+
+    lime_results: List[Dict[str, Any]] = []
     results = []
     for path in input_paths:
         df = pd.read_csv(path)
@@ -333,8 +387,8 @@ def main() -> None:
         xgb_proba = predict_proba(xgb_model, z_angles) if xgb_model is not None else np.zeros_like(rf_proba)
 
         if vqc_model is None:
-            if live_cfg.get("require_vqc", True):
-                raise FileNotFoundError("VQC model not found. Set require_vqc=false to continue.")
+            if require_vqc:
+                raise FileNotFoundError("VQC model not found or path is not configured while require_vqc=true.")
             vqc_proba = np.zeros_like(xgb_proba)
             w_vqc = 0.0
         else:
@@ -351,17 +405,20 @@ def main() -> None:
         detail = live_cfg.get("output_detail", "full")
         payload = build_output_records(hybrid_proba, detail)
 
+        latent_df = None
+        if shap_enabled or lime_enabled:
+            reference_background = shap_background if shap_background is not None else lime_background
+            latent_df = make_latent_df(z_angles, reference_background)
+
+        def _predict_proba(x):
+            x = np.asarray(x, dtype=float)
+            rf_p = predict_proba(rf_model, x)
+            xgb_p = predict_proba(xgb_model, x) if xgb_model is not None else np.zeros_like(rf_p)
+            vqc_p = predict_proba(vqc_model, x) if vqc_model is not None else np.zeros_like(rf_p)
+            return w_v * vqc_p + w_x * xgb_p + w_r * rf_p
+
         if shap_enabled:
-            latent_df = make_latent_df(z_angles, shap_background)
-
             if shap_explainer is None:
-                def _predict_proba(x):
-                    x = np.asarray(x, dtype=float)
-                    rf_p = predict_proba(rf_model, x)
-                    xgb_p = predict_proba(xgb_model, x) if xgb_model is not None else np.zeros_like(rf_p)
-                    vqc_p = predict_proba(vqc_model, x) if vqc_model is not None else np.zeros_like(rf_p)
-                    return w_v * vqc_p + w_x * xgb_p + w_r * rf_p
-
                 shap_explainer = build_shap_explainer(shap_background, _predict_proba)
 
             payload["shap_explanations"] = explain_samples(
@@ -370,6 +427,73 @@ def main() -> None:
                 hybrid_proba,
                 shap_max_samples,
             )
+
+        if lime_enabled:
+            if latent_df is None:
+                latent_df = make_latent_df(z_angles, shap_background)
+
+            if lime_explainer is None:
+                lime_training_df = (
+                    lime_background
+                    if lime_background is not None
+                    else shap_background
+                    if shap_background is not None
+                    else latent_df
+                )
+                lime_explainer = build_lime_explainer(
+                    lime_training_df,
+                    class_names=CLASS_NAMES,
+                    feature_names=list(latent_df.columns),
+                    random_state=lime_random_state,
+                )
+
+            shap_by_row = {
+                int(item["row"]): item.get("shap_values", {})
+                for item in payload.get("shap_explanations", [])
+            }
+
+            rows_to_explain = min(lime_max_samples, len(latent_df))
+            file_lime_records: List[Dict[str, Any]] = []
+            for idx in range(rows_to_explain):
+                pred_class = int(np.argmax(hybrid_proba[idx]))
+                lime_local = explain_lime_instance(
+                    explainer=lime_explainer,
+                    predict_proba_fn=_predict_proba,
+                    sample_row=latent_df.iloc[idx].to_numpy(dtype=float),
+                    pred_class=pred_class,
+                    class_names=CLASS_NAMES,
+                    feature_names=list(latent_df.columns),
+                    num_features=lime_num_features,
+                    num_samples=lime_num_samples,
+                )
+                consistency = compute_shap_lime_consistency(
+                    lime_contributions=lime_local.get("feature_contributions", []),
+                    shap_values=shap_by_row.get(idx),
+                    top_k=lime_consistency_top_k,
+                )
+
+                file_lime_records.append(
+                    {
+                        "row": int(idx),
+                        "pred_label": CLASS_NAMES[pred_class],
+                        "confidence": float(hybrid_proba[idx, pred_class]),
+                        "probabilities": {
+                            CLASS_NAMES[i]: float(hybrid_proba[idx, i]) for i in range(len(CLASS_NAMES))
+                        },
+                        "lime_local_explanation": lime_local,
+                        "shap_lime_consistency": consistency,
+                    }
+                )
+
+            lime_results.append(
+                {
+                    "file": str(path),
+                    "rows": int(len(df)),
+                    "rows_explained": int(rows_to_explain),
+                    "explanations": file_lime_records,
+                }
+            )
+            payload["lime_explanations_count"] = int(rows_to_explain)
         payload.update({"file": str(path), "rows": int(len(df))})
         results.append(payload)
 
@@ -380,8 +504,24 @@ def main() -> None:
         "weights": {"vqc": w_v, "xgb": w_x, "rf": w_r},
         "results": results,
     }
-    with output_json.open("w", encoding="utf-8") as f:
-        json.dump(output, f, indent=2)
+    write_json(output_json, output)
+
+    if lime_enabled:
+        lime_output = {
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "input_glob": input_glob,
+            "weights": {"vqc": w_v, "xgb": w_x, "rf": w_r},
+            "lime_config": {
+                "max_samples": lime_max_samples,
+                "num_features": lime_num_features,
+                "num_samples": lime_num_samples,
+                "random_state": lime_random_state,
+                "consistency_top_k": lime_consistency_top_k,
+            },
+            "results": lime_results,
+        }
+        write_json(lime_output_json, lime_output)
+        print(f"Saved LIME local explanations to {lime_output_json}")
 
     print(f"Saved predictions to {output_json}")
 

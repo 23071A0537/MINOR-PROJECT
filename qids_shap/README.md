@@ -1,14 +1,23 @@
 # QIDS — SHAP Explainability Layer
 
+This folder is now a lightweight compatibility folder (README + requirements).
+Active explainability source code has been moved to `src/qids/explainability`.
+
 ## 📁 File Structure
 
 ```
-qids_shap/
+src/qids/explainability/
 ├── shap_pipeline.py          ← Core pipeline class (import this in your app)
 ├── save_artefacts_colab.py   ← Run once in Colab to export model files
 ├── app.py                    ← Streamlit dashboard
-├── requirements.txt
-└── qids_models/              ← Put your downloaded model files here
+├── explainability_dashboard.py
+└── lime_shared_helper.py
+
+qids_shap/
+├── README.md
+└── requirements.txt
+
+qids_models/
     ├── xgboost_model.pkl
     ├── rf_model.pkl
     ├── vae_encoder.pkl
@@ -18,7 +27,7 @@ qids_shap/
 ## 🚀 Quick Start
 
 ### Step 1 — Save artefacts from Colab
-Paste `save_artefacts_colab.py` cells into your Colab notebook.
+Paste `src/qids/explainability/save_artefacts_colab.py` cells into your Colab notebook.
 Download `qids_models.zip`, extract into this folder.
 
 ### Step 2 — Install dependencies
@@ -28,7 +37,13 @@ pip install -r requirements.txt
 
 ### Step 3A — Use in your pipeline (Python)
 ```python
-from shap_pipeline import QIDSSHAPPipeline
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent
+sys.path.insert(0, str(project_root / "src"))
+
+from qids.explainability.shap_pipeline import QIDSSHAPPipeline
 import pandas as pd
 
 pipeline = QIDSSHAPPipeline.load("qids_models/")
@@ -43,7 +58,7 @@ print(result["global_importance_df"])
 
 ### Step 3B — Launch Streamlit dashboard
 ```bash
-streamlit run app.py
+python scripts/explainability_dashboard.py
 ```
 
 ## 🔑 result dict keys
@@ -61,6 +76,6 @@ streamlit run app.py
 | `chart_waterfall_b64` | str | base64 PNG waterfall |
 
 ## ⚠️ Keras VAE Note
-If your VAE encoder is a Keras model (not sklearn), in `shap_pipeline.py`
+If your VAE encoder is a Keras model (not sklearn), in `src/qids/explainability/shap_pipeline.py`
 replace the `_encode` method's `.transform()` call with `.predict()` and
 load the model with `tf.keras.models.load_model()` instead of `joblib.load()`.

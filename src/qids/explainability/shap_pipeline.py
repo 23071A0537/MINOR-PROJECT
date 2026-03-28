@@ -10,6 +10,9 @@ Usage:
     result   = pipeline.explain(raw_features_df)
 """
 
+import sys
+from pathlib import Path
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -20,6 +23,16 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import io, base64, os, warnings
 warnings.filterwarnings("ignore")
+
+PROJECT_ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT_DIR))
+
+from lime_shared_helper import (
+    build_lime_explainer,
+    compute_shap_lime_consistency,
+    explain_lime_instance,
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -56,6 +69,7 @@ class QIDSSHAPPipeline:
     rf_model          : fitted RandomForestClassifier
     background_latent : pd.DataFrame  — 500-sample SHAP background (z0–z7)
     explainer         : shap.Explainer  — built once, reused every call
+    lime_explainer    : LimeTabularExplainer — built once, reused every call
     """
 
     def __init__(self, vae_encoder, xgb_model, rf_model, background_latent: pd.DataFrame):
@@ -65,11 +79,21 @@ class QIDSSHAPPipeline:
         self.background_latent = background_latent
         self._n_classes        = len(xgb_model.classes_)
         self._latent_cols      = background_latent.columns.tolist()
+        self._class_names      = [CLASS_LABELS.get(i, f"Class_{i}") for i in range(self._n_classes)]
 
         print("⚙️  Building SHAP Explainer (one-time, ~30s)…")
         self.explainer = shap.Explainer(self._ensemble_predict_proba,
                                         self.background_latent)
         print("✅ SHAP Explainer ready.")
+
+        print("⚙️  Building LIME Explainer (one-time, ~10s)…")
+        self.lime_explainer = build_lime_explainer(
+            self.background_latent,
+            class_names=self._class_names,
+            feature_names=self._latent_cols,
+            random_state=42,
+        )
+        print("✅ LIME Explainer ready.")
 
     # ── Save / Load ──────────────────────────────────────────────────────────
     @classmethod
@@ -113,7 +137,8 @@ class QIDSSHAPPipeline:
         dict with keys:
             predicted_class, confidence, probabilities,
             shap_values_dict, explanation_text,
-            global_importance_df,
+            global_importance_df, lime_local_explanation,
+            shap_lime_consistency,
             chart_beeswarm_b64, chart_bar_b64, chart_waterfall_b64
         """
         # 1. Encode
@@ -130,6 +155,25 @@ class QIDSSHAPPipeline:
 
         # 4. Numerical summary
         global_imp = self._global_importance(sv)
+        shap_values_dict = dict(zip(self._latent_cols,
+                                    sv.values[sample_idx, :, pred_class].tolist()))
+
+        # 4b. LIME local explanation + SHAP-LIME consistency
+        lime_local = explain_lime_instance(
+            explainer=self.lime_explainer,
+            predict_proba_fn=self._ensemble_predict_proba,
+            sample_row=latent_df.iloc[sample_idx].to_numpy(dtype=float),
+            pred_class=pred_class,
+            class_names=self._class_names,
+            feature_names=self._latent_cols,
+            num_features=min(10, len(self._latent_cols)),
+            num_samples=2000,
+        )
+        shap_lime_consistency = compute_shap_lime_consistency(
+            lime_contributions=lime_local.get("feature_contributions", []),
+            shap_values=shap_values_dict,
+            top_k=5,
+        )
 
         # 5. Charts
         bar_b64       = self._chart_bar(sv, pred_class)
@@ -150,9 +194,10 @@ class QIDSSHAPPipeline:
             "severity_color":    SEVERITY.get(label, "#888888"),
 
             # ── Numerical ──
-            "shap_values_dict":  dict(zip(self._latent_cols,
-                                         sv.values[sample_idx, :, pred_class].tolist())),
+            "shap_values_dict":  shap_values_dict,
             "global_importance_df": global_imp,
+            "lime_local_explanation": lime_local,
+            "shap_lime_consistency": shap_lime_consistency,
 
             # ── Text ──
             "explanation_text":  text,

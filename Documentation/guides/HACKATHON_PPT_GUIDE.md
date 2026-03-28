@@ -187,7 +187,7 @@
 Network Traffic → Preprocessing + VAE (49→8) → VQC (8-qubit) → Hybrid Ensemble → XAI Output
 ```
 
-**Optional:** Place a small `Images/Arc_diag.png` preview here pointing to Slide 4.
+**Optional:** Place a small `Documentation/diagrams/architecture/Arc_diag.png` preview here pointing to Slide 4.
 
 ---
 
@@ -212,7 +212,7 @@ Network Traffic → Preprocessing + VAE (49→8) → VQC (8-qubit) → Hybrid En
 
 #### 🛠️ How Will We Implement This?
 
-**Architecture Diagram:** Place `Images/Arc_diag.png` prominently (50% of slide)
+**Architecture Diagram:** Place `Documentation/diagrams/architecture/Arc_diag.png` prominently (50% of slide)
 
 **Pipeline in one line:**
 
@@ -386,10 +386,10 @@ Raw Data → Preprocessing + VAE (49→8) → VQC (8-qubit) → Hybrid Ensemble 
 | ------- | ------------------------------------------------ | ----------------------------------------- |
 | Slide 1 | None (or subtle quantum-circuit background)      | Title aesthetics                          |
 | Slide 2 | None (icon-driven)                               | Problem clarity through text              |
-| Slide 3 | `Images/Arc_diag.png` (small preview)            | Tease the architecture                    |
-| Slide 4 | **`Images/Arc_diag.png`** (LARGE, centered)      | **Primary visual — architecture**         |
-| Slide 5 | `Images/class_diag.png` (thumbnail)              | Feasibility proof — "system is designed"  |
-| Slide 5 | `Images/use_case_diag.png` (thumbnail, optional) | Feasibility proof — "32 use cases mapped" |
+| Slide 3 | `Documentation/diagrams/architecture/Arc_diag.png` (small preview)            | Tease the architecture                    |
+| Slide 4 | **`Documentation/diagrams/architecture/Arc_diag.png`** (LARGE, centered)      | **Primary visual — architecture**         |
+| Slide 5 | `Documentation/diagrams/class/class_diag.png` (thumbnail)                      | Feasibility proof — "system is designed"  |
+| Slide 5 | `Documentation/diagrams/use_case/use_case_diag.png` (thumbnail, optional)      | Feasibility proof — "32 use cases mapped" |
 | Slide 6 | None (clean, minimal)                            | Impact statement                          |
 
 ### Images NOT recommended for PPT slides (too detailed for a 6-slide deck):

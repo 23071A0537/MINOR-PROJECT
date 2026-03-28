@@ -1,0 +1,1 @@
+"""QIDS source package."""

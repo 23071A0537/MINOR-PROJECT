@@ -52,7 +52,7 @@ def main() -> None:
     parser.add_argument("--w_rf", type=float, default=0.35)
     args = parser.parse_args()
 
-    base = Path(__file__).resolve().parent
+    base = Path(__file__).resolve().parents[3]
     vqc_path = base / "vqc_ensemble_v6" / "winner_test_proba.parquet"
     rf_path = base / "random_forest_output" / "rf_test_proba.parquet"
     xgb_model_path = base / "xgboost_output" / "xgboost_model.pkl"

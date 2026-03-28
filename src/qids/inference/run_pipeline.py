@@ -23,8 +23,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the end-to-end pipeline.")
     parser.add_argument(
         "--config",
-        default="pipeline/config.json",
-        help="Path to config JSON (default: pipeline/config.json)",
+        default="configs/pipeline/config.json",
+        help="Path to config JSON (default: configs/pipeline/config.json)",
     )
     args = parser.parse_args()
 
@@ -42,7 +42,7 @@ def main() -> None:
     if run_mode.get("live_inference") == "run":
         cmd = [
             sys.executable,
-            str(resolve_path(project_root, "pipeline/live_inference.py")),
+            str(resolve_path(project_root, "src/qids/inference/live_inference.py")),
             "--config",
             str(config_path),
         ]
@@ -81,7 +81,7 @@ def main() -> None:
     output_json = resolve_path(project_root, stage5["output_json"])
     cmd = [
         sys.executable,
-        str(resolve_path(project_root, "hybrid_assembly.py")),
+        str(resolve_path(project_root, "src/qids/inference/hybrid_assembly.py")),
         "--output",
         str(output_json),
         "--w_vqc",
