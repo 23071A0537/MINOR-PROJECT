@@ -1,0 +1,61 @@
+{
+  "project_root": "..",
+  "run_mode": {
+    "stage1": "skip",
+    "stage2": "skip",
+    "stage3": "skip",
+    "stage4": "skip",
+    "stage5": "run",
+    "live_inference": "run"
+  },
+  "notebooks": {
+    "stage1": "PreProcessing/Stage1_Preprocessing_Complete.ipynb",
+    "stage2": "PreProcessing/Stage2_Classical_Preprocessing_v2.ipynb",
+    "stage3": "VAE/Stage3_VAE_Combined_v2.ipynb",
+    "stage4": "VQC/Stage4_VQC.ipynb"
+  },
+  "artifacts": {
+    "stage2_y_test": "PreProcessing/stage_2_with_zero_v2/stage2_y_test.parquet",
+    "vae_z_test": "VAE/vae_a_output_16/vae_a_z_test.parquet",
+    "vqc_winner_test_proba": "vqc_ensemble_v6/winner_test_proba.parquet",
+    "rf_test_proba": "random_forest_output/rf_test_proba.parquet",
+    "xgb_model": "xgboost_output/xgboost_model.pkl"
+  },
+  "stage5": {
+    "weights": {
+      "vqc": 0.1,
+      "xgb": 0.55,
+      "rf": 0.35
+    },
+    "output_json": "hybrid layer output.json"
+  },
+  "plots": {
+    "enabled": true,
+    "output_dir": "pipeline/plots"
+  },
+  "live_inference": {
+    "input_glob": "pipeline/*.csv",
+    "output_json": "pipeline/live_predictions.json",
+    "require_vqc": false,
+    "require_xgb": true,
+    "output_detail": "full",
+    "artifacts": {
+      "stage2_artefacts": "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json",
+      "vae_checkpoint": "VAE/vae_a_output_16/vae_a_best.pt",
+      "vae_config": "VAE/vae_a_output_16/vae_a_config.json",
+      "xgb_model": "xgboost_output/xgboost_model.pkl",
+      "rf_model": "random_forest_output/rf_model.pkl",
+      "vqc_model": "VQC/vqc_a_output_v4/vqc_a_model.pkl"
+    },
+    "weights": {
+      "vqc": 0.0,
+      "xgb": 0.55,
+      "rf": 0.35
+    },
+    "shap": {
+      "enabled": true,
+      "background": "VAE/vae_a_output_16/vae_a_z_train.parquet",
+      "max_samples": 1
+    }
+  }
+}

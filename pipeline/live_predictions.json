@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-03-26T07:25:08.529214Z",
+  "input_glob": "pipeline/*.csv",
+  "weights": {
+    "vqc": 0.0,
+    "xgb": 0.6111111111111112,
+    "rf": 0.38888888888888884
+  },
+  "results": [
+    {
+      "predictions": [
+        {
+          "row": 0,
+          "pred_label": "NORMALL",
+          "confidence": 0.8936375727729766,
+          "probabilities": {
+            "NORMALL": 0.8936375727729766,
+            "DoSD": 0.0024903567175440498,
+            "PROBE": 0.006879254671598532,
+            "EXPLOIT": 0.09699246293008744,
+            "MALWARE": 2.7722634538602307e-07
+          }
+        },
+        {
+          "row": 1,
+          "pred_label": "NORMALL",
+          "confidence": 0.8936375727729766,
+          "probabilities": {
+            "NORMALL": 0.8936375727729766,
+            "DoSD": 0.0024903567175440498,
+            "PROBE": 0.006879254671598532,
+            "EXPLOIT": 0.09699246293008744,
+            "MALWARE": 2.7722634538602307e-07
+          }
+        }
+      ],
+      "shap_explanations": [
+        {
+          "row": 0,
+          "pred_label": "NORMALL",
+          "confidence": 0.8936375727729766,
+          "base_value": 0.728047673450504,
+          "shap_values": {
+            "z_0": -0.09475342070320028,
+            "z_1": -0.043125715372849385,
+            "z_2": -0.11918088422973645,
+            "z_3": 0.050171274550714955,
+            "z_4": -0.014075458232695497,
+            "z_5": 0.031019491384808764,
+            "z_6": 0.031909088940270364,
+            "z_7": 0.3236255229851576
+          }
+        }
+      ],
+      "file": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\pipeline\\sample_input.csv",
+      "rows": 2
+    }
+  ]
+}

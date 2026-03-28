@@ -1,0 +1,24 @@
+{
+  "tag": "VQC-A",
+  "vae_source": "VAE-A (167 features)",
+  "seed": 42,
+  "val_f1": 0.6956404547579543,
+  "best_T": 0.1,
+  "thresholds": [
+    0.05,
+    0.9,
+    0.65,
+    0.825,
+    0.9
+  ],
+  "test_f1_macro": 0.7157834954835595,
+  "architecture": "16\u2192128\u219264\u21925",
+  "circuit_features": "PauliZ+PauliX",
+  "class_weights": [
+    1.0,
+    2.0,
+    2.0,
+    3.0,
+    15.0
+  ]
+}

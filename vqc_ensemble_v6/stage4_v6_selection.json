@@ -1,0 +1,21 @@
+{
+  "stage": "4",
+  "version": "v6",
+  "best_single_model": "VQC-B",
+  "vqc_a_f1": 0.7157834954835595,
+  "vqc_b_f1": 0.7219056287028598,
+  "stack_ensemble_f1": 0.7175037093923692,
+  "avg_ensemble_f1": 0.7254366760195807,
+  "avg_thresh_ensemble_f1": 0.7297554238910368,
+  "best_f1": 0.7297554238910368,
+  "target_080_met": false,
+  "architecture": {
+    "qubits": 8,
+    "circuit_features": "16 (PauliZ+PauliX)",
+    "head": "16\u2192128\u219264\u21925",
+    "norm": "LayerNorm",
+    "class_weights_malware": 15.0,
+    "focal_gamma": 2.5,
+    "thresholds_used": true
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "created_at": "2026-03-26T02:44:36.255361Z",
+  "dataset": "PreProcessing/stage_2_with_zero_v2",
+  "weights": {
+    "vqc": 0.1,
+    "xgboost": 0.55,
+    "random_forest": 0.35
+  },
+  "inputs": {
+    "vqc_test_proba": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\vqc_ensemble_v6\\winner_test_proba.parquet",
+    "rf_test_proba": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\random_forest_output\\rf_test_proba.parquet",
+    "xgb_model": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\xgboost_output\\xgboost_model.pkl",
+    "vae_z_test": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\VAE\\vae_a_output_16\\vae_a_z_test.parquet",
+    "y_test": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\PreProcessing\\stage_2_with_zero_v2\\stage2_y_test.parquet"
+  },
+  "metrics": {
+    "accuracy": 0.9801204934760294,
+    "f1_macro": 0.8233151781037075,
+    "f1_micro": 0.9801204934760294,
+    "f1_weighted": 0.981250800312458,
+    "confusion_matrix": [
+      [
+        448856,
+        352,
+        3335,
+        541,
+        206
+      ],
+      [
+        169,
+        74932,
+        46,
+        2924,
+        150
+      ],
+      [
+        514,
+        18,
+        26649,
+        1628,
+        328
+      ],
+      [
+        163,
+        26,
+        179,
+        11310,
+        288
+      ],
+      [
+        67,
+        2,
+        53,
+        418,
+        653
+      ]
+    ],
+    "classification_report": {
+      "NORMALL": {
+        "precision": 0.9979700690799055,
+        "recall": 0.9902181826203975,
+        "f1-score": 0.9940790136635591,
+        "support": 453290.0
+      },
+      "DoSD": {
+        "precision": 0.9947165803796628,
+        "recall": 0.9579524680073126,
+        "f1-score": 0.975988433810265,
+        "support": 78221.0
+      },
+      "PROBE": {
+        "precision": 0.880609345053202,
+        "recall": 0.9146102893228542,
+        "f1-score": 0.8972878331285038,
+        "support": 29137.0
+      },
+      "EXPLOIT": {
+        "precision": 0.6723738184412341,
+        "recall": 0.945178004345646,
+        "f1-score": 0.7857713551255775,
+        "support": 11966.0
+      },
+      "MALWARE": {
+        "precision": 0.40184615384615385,
+        "recall": 0.5473595976529757,
+        "f1-score": 0.46344925479063165,
+        "support": 1193.0
+      },
+      "accuracy": 0.9801204934760294,
+      "macro avg": {
+        "precision": 0.7895031933600317,
+        "recall": 0.8710637083898373,
+        "f1-score": 0.8233151781037075,
+        "support": 573807.0
+      },
+      "weighted avg": {
+        "precision": 0.9835378799961124,
+        "recall": 0.9801204934760294,
+        "f1-score": 0.981250800312458,
+        "support": 573807.0
+      }
+    }
+  }
+}
