@@ -19,6 +19,65 @@ def run_notebook(notebook_path: Path, project_root: Path) -> None:
     run_cmd(cmd, project_root)
 
 
+def refresh_live_input(project_root: Path, live_cfg: dict) -> None:
+    random_cfg = live_cfg.get("random_input", {})
+    if not bool(random_cfg.get("enabled", False)):
+        return
+
+    input_glob = str(live_cfg.get("input_glob", "")).strip()
+    if not input_glob:
+        raise ValueError("live_inference.input_glob must be set when random_input is enabled.")
+
+    if any(ch in input_glob for ch in "*?[]"):
+        raise ValueError(
+            "live_inference.random_input.enabled=true requires live_inference.input_glob to be a concrete file path (no wildcard)."
+        )
+
+    sample_size = int(random_cfg.get("sample_size", 50))
+    if sample_size <= 0:
+        raise ValueError("live_inference.random_input.sample_size must be > 0")
+
+    x_path = str(
+        random_cfg.get(
+            "x_path",
+            "PreProcessing/stage_2_with_zero_v2/stage2_X_test.parquet",
+        )
+    )
+    y_path = str(
+        random_cfg.get(
+            "y_path",
+            "PreProcessing/stage_2_with_zero_v2/stage2_y_test.parquet",
+        )
+    )
+    artefacts_path = str(
+        random_cfg.get(
+            "artefacts_path",
+            "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json",
+        )
+    )
+
+    cmd = [
+        sys.executable,
+        str(resolve_path(project_root, "src/qids/preprocessing/make_all_classes_input.py")),
+        "--x-path",
+        x_path,
+        "--y-path",
+        y_path,
+        "--artefacts-path",
+        artefacts_path,
+        "--total-samples",
+        str(sample_size),
+        "--output",
+        input_glob,
+    ]
+
+    if random_cfg.get("seed") is not None:
+        cmd.extend(["--seed", str(random_cfg["seed"])])
+
+    run_cmd(cmd, project_root)
+    print(f"Random live input regenerated: {sample_size} rows -> {resolve_path(project_root, input_glob)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the end-to-end pipeline.")
     parser.add_argument(
@@ -40,6 +99,11 @@ def main() -> None:
     live_cfg = config.get("live_inference")
 
     if run_mode.get("live_inference") == "run":
+        if live_cfg is None:
+            raise ValueError("live_inference configuration is required when run_mode.live_inference is 'run'.")
+
+        refresh_live_input(project_root, live_cfg)
+
         cmd = [
             sys.executable,
             str(resolve_path(project_root, "src/qids/inference/live_inference.py")),

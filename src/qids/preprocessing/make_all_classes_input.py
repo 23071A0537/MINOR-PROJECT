@@ -53,6 +53,12 @@ def main() -> None:
         help="Number of rows to sample per class.",
     )
     parser.add_argument(
+        "--total-samples",
+        type=int,
+        default=None,
+        help="Total number of random rows to sample across all classes. If set, overrides --samples-per-class.",
+    )
+    parser.add_argument(
         "--output",
         default="artifacts/inference/all_classes_input.csv",
         help="Output CSV path.",
@@ -60,8 +66,8 @@ def main() -> None:
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
-        help="Random seed.",
+        default=None,
+        help="Random seed. Leave unset for different random samples each run.",
     )
     args = parser.parse_args()
 
@@ -86,13 +92,22 @@ def main() -> None:
     sampled_indices = []
     rng = np.random.default_rng(args.seed)
 
-    for cls in sorted(CLASS_NAMES.keys()):
-        idx = np.flatnonzero(y_series.to_numpy() == cls)
-        if len(idx) == 0:
-            continue
-        k = min(args.samples_per_class, len(idx))
-        chosen = rng.choice(idx, size=k, replace=False)
-        sampled_indices.extend(chosen.tolist())
+    if args.total_samples is not None:
+        if args.total_samples <= 0:
+            raise ValueError("--total-samples must be > 0")
+        if args.total_samples > len(x_df):
+            raise ValueError(
+                f"--total-samples ({args.total_samples}) exceeds dataset rows ({len(x_df)})."
+            )
+        sampled_indices = rng.choice(len(x_df), size=args.total_samples, replace=False).tolist()
+    else:
+        for cls in sorted(CLASS_NAMES.keys()):
+            idx = np.flatnonzero(y_series.to_numpy() == cls)
+            if len(idx) == 0:
+                continue
+            k = min(args.samples_per_class, len(idx))
+            chosen = rng.choice(idx, size=k, replace=False)
+            sampled_indices.extend(chosen.tolist())
 
     sampled_indices = np.array(sampled_indices, dtype=int)
     sampled_indices.sort()
@@ -108,6 +123,10 @@ def main() -> None:
 
     counts = y_sample.value_counts().sort_index()
     print(f"Saved: {output_path.resolve()}")
+    if args.seed is None:
+        print("Sampling mode: random seed not fixed (fresh sample each run).")
+    else:
+        print(f"Sampling seed: {args.seed}")
     print("Class distribution in generated CSV:")
     for cls, count in counts.items():
         print(f"  {CLASS_NAMES[int(cls)]}: {int(count)}")

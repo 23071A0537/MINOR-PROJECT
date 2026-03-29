@@ -39,6 +39,14 @@
     "require_vqc": false,
     "require_xgb": true,
     "output_detail": "full",
+    "random_input": {
+      "enabled": true,
+      "sample_size": 50,
+      "seed": null,
+      "x_path": "PreProcessing/stage_2_with_zero_v2/stage2_X_test.parquet",
+      "y_path": "PreProcessing/stage_2_with_zero_v2/stage2_y_test.parquet",
+      "artefacts_path": "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json"
+    },
     "artifacts": {
       "stage2_artefacts": "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json",
       "vae_checkpoint": "VAE/vae_a_output_16/vae_a_best.pt",
