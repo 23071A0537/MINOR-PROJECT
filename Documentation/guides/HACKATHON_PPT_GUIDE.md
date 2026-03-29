@@ -382,15 +382,15 @@ Raw Data → Preprocessing + VAE (49→8) → VQC (8-qubit) → Hybrid Ensemble 
 
 ## IMAGE PLACEMENT SUMMARY
 
-| Slide   | Image to Use                                     | Purpose                                   |
-| ------- | ------------------------------------------------ | ----------------------------------------- |
-| Slide 1 | None (or subtle quantum-circuit background)      | Title aesthetics                          |
-| Slide 2 | None (icon-driven)                               | Problem clarity through text              |
-| Slide 3 | `Documentation/diagrams/architecture/Arc_diag.png` (small preview)            | Tease the architecture                    |
-| Slide 4 | **`Documentation/diagrams/architecture/Arc_diag.png`** (LARGE, centered)      | **Primary visual — architecture**         |
-| Slide 5 | `Documentation/diagrams/class/class_diag.png` (thumbnail)                      | Feasibility proof — "system is designed"  |
-| Slide 5 | `Documentation/diagrams/use_case/use_case_diag.png` (thumbnail, optional)      | Feasibility proof — "32 use cases mapped" |
-| Slide 6 | None (clean, minimal)                            | Impact statement                          |
+| Slide   | Image to Use                                                              | Purpose                                   |
+| ------- | ------------------------------------------------------------------------- | ----------------------------------------- |
+| Slide 1 | None (or subtle quantum-circuit background)                               | Title aesthetics                          |
+| Slide 2 | None (icon-driven)                                                        | Problem clarity through text              |
+| Slide 3 | `Documentation/diagrams/architecture/Arc_diag.png` (small preview)        | Tease the architecture                    |
+| Slide 4 | **`Documentation/diagrams/architecture/Arc_diag.png`** (LARGE, centered)  | **Primary visual — architecture**         |
+| Slide 5 | `Documentation/diagrams/class/class_diag.png` (thumbnail)                 | Feasibility proof — "system is designed"  |
+| Slide 5 | `Documentation/diagrams/use_case/use_case_diag.png` (thumbnail, optional) | Feasibility proof — "32 use cases mapped" |
+| Slide 6 | None (clean, minimal)                                                     | Impact statement                          |
 
 ### Images NOT recommended for PPT slides (too detailed for a 6-slide deck):
 

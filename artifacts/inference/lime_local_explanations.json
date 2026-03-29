@@ -25,10 +25,10 @@
           "confidence": 0.7883903932840473,
           "probabilities": {
             "NORMALL": 0.21159551932372836,
-            "DoSD": 7.848961963140433e-06,
+            "DoSD": 7.848961963140433e-6,
             "PROBE": 0.7883903932840473,
-            "EXPLOIT": 4.824416919291252e-06,
-            "MALWARE": 1.4250914546209972e-06
+            "EXPLOIT": 4.824416919291252e-6,
+            "MALWARE": 1.4250914546209972e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -135,12 +135,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 0.75,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [
               {
                 "feature": "z_7",
@@ -200,10 +195,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -310,13 +305,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -370,10 +359,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -480,13 +469,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -540,10 +523,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -603,7 +586,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 2.047960911966129e-08,
+                "feature_value": 2.047960911966129e-8,
                 "weight": -0.011801271920572249,
                 "direction": "opposes_predicted_class"
               }
@@ -650,12 +633,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -709,9 +687,9 @@
           "confidence": 0.6722777191125469,
           "probabilities": {
             "NORMALL": 0.3276554409010759,
-            "DoSD": 2.0860599357143252e-05,
-            "PROBE": 2.8668639263034696e-05,
-            "EXPLOIT": 1.733124241177898e-05,
+            "DoSD": 2.0860599357143252e-5,
+            "PROBE": 2.8668639263034696e-5,
+            "EXPLOIT": 1.733124241177898e-5,
             "MALWARE": 0.6722777191125469
           },
           "lime_local_explanation": {
@@ -819,13 +797,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_1",
-              "z_4",
-              "z_5",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_1", "z_4", "z_5", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -879,10 +851,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -989,13 +961,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1049,10 +1015,10 @@
           "confidence": 0.9998309756128687,
           "probabilities": {
             "NORMALL": 0.0001675266910810453,
-            "DoSD": 8.337797604932955e-07,
+            "DoSD": 8.337797604932955e-7,
             "PROBE": 0.9998309756128687,
-            "EXPLOIT": 5.581282462369726e-07,
-            "MALWARE": 8.58594736049175e-08
+            "EXPLOIT": 5.581282462369726e-7,
+            "MALWARE": 8.58594736049175e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -1159,12 +1125,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1219,9 +1180,9 @@
           "probabilities": {
             "NORMALL": 0.005511335925095611,
             "DoSD": 0.9944725334644318,
-            "PROBE": 7.4435464133178666e-06,
-            "EXPLOIT": 8.20112331388777e-06,
-            "MALWARE": 4.248606760231471e-07
+            "PROBE": 7.4435464133178666e-6,
+            "EXPLOIT": 8.20112331388777e-6,
+            "MALWARE": 4.248606760231471e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 1,
@@ -1328,12 +1289,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_1",
-              "z_5",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_1", "z_5", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1387,10 +1343,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -1497,13 +1453,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1559,8 +1509,8 @@
             "NORMALL": 0.8776239354732184,
             "DoSD": 0.0033197359950696537,
             "PROBE": 0.1190517020710137,
-            "EXPLOIT": 3.3613426290281095e-06,
-            "MALWARE": 1.2946321450928938e-06
+            "EXPLOIT": 3.3613426290281095e-6,
+            "MALWARE": 1.2946321450928938e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -1620,7 +1570,7 @@
               {
                 "feature": "z_1",
                 "feature_index": 1,
-                "feature_value": 2.406185615200229e-07,
+                "feature_value": 2.406185615200229e-7,
                 "weight": 0.001084419007654564,
                 "direction": "supports_predicted_class"
               }
@@ -1667,12 +1617,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1726,10 +1671,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -1836,13 +1781,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -1896,10 +1835,10 @@
           "confidence": 0.7281011828707258,
           "probabilities": {
             "NORMALL": 0.2718788197709522,
-            "DoSD": 1.1568228223445154e-05,
+            "DoSD": 1.1568228223445154e-5,
             "PROBE": 0.7281011828707258,
-            "EXPLOIT": 6.6044472077919644e-06,
-            "MALWARE": 1.7931691773911655e-06
+            "EXPLOIT": 6.6044472077919644e-6,
+            "MALWARE": 1.7931691773911655e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -2006,12 +1945,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 0.75,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [
               {
                 "feature": "z_7",
@@ -2071,10 +2005,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -2120,7 +2054,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 1.2144203420660915e-09,
+                "feature_value": 1.2144203420660915e-9,
                 "weight": -0.014773854896873918,
                 "direction": "opposes_predicted_class"
               },
@@ -2181,13 +2115,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -2241,10 +2169,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -2290,7 +2218,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 1.0488054158486193e-07,
+                "feature_value": 1.0488054158486193e-7,
                 "weight": -0.016138349389966847,
                 "direction": "opposes_predicted_class"
               },
@@ -2351,13 +2279,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -2411,10 +2333,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -2521,13 +2443,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -2581,9 +2497,9 @@
           "confidence": 0.9995517896281348,
           "probabilities": {
             "NORMALL": 0.0004464173624809418,
-            "DoSD": 2.9220028510381883e-07,
-            "PROBE": 6.457849066363351e-07,
-            "EXPLOIT": 8.778126433147312e-07,
+            "DoSD": 2.9220028510381883e-7,
+            "PROBE": 6.457849066363351e-7,
+            "EXPLOIT": 8.778126433147312e-7,
             "MALWARE": 0.9995517896281348
           },
           "lime_local_explanation": {
@@ -2691,13 +2607,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_1",
-              "z_2",
-              "z_5",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_1", "z_2", "z_5", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -2752,9 +2662,9 @@
           "probabilities": {
             "NORMALL": 0.0009469887831873164,
             "DoSD": 0.997379218076696,
-            "PROBE": 1.372598426819928e-06,
+            "PROBE": 1.372598426819928e-6,
             "EXPLOIT": 0.0016722762063585712,
-            "MALWARE": 6.72339083172978e-08
+            "MALWARE": 6.72339083172978e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 1,
@@ -2861,12 +2771,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_4",
-              "z_5",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_4", "z_5", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -2920,10 +2825,10 @@
           "confidence": 0.9999991986486647,
           "probabilities": {
             "NORMALL": 0.9999991986486647,
-            "DoSD": 3.929113524413374e-07,
-            "PROBE": 2.1742745243753035e-07,
-            "EXPLOIT": 1.450766586370062e-07,
-            "MALWARE": 6.181607324783222e-08
+            "DoSD": 3.929113524413374e-7,
+            "PROBE": 2.1742745243753035e-7,
+            "EXPLOIT": 1.450766586370062e-7,
+            "MALWARE": 6.181607324783222e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -3030,11 +2935,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.4286,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3088,10 +2989,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -3137,7 +3038,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 2.7993947160354082e-09,
+                "feature_value": 2.7993947160354082e-9,
                 "weight": -0.011272663790608782,
                 "direction": "opposes_predicted_class"
               },
@@ -3198,13 +3099,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3258,10 +3153,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -3368,13 +3263,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3428,10 +3317,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -3538,13 +3427,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3598,10 +3481,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -3708,13 +3591,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3768,10 +3645,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -3878,13 +3755,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -3938,10 +3809,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -4048,13 +3919,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -4108,10 +3973,10 @@
           "confidence": 0.9107979129558202,
           "probabilities": {
             "NORMALL": 0.9107979129558202,
-            "DoSD": 5.680370830102927e-06,
+            "DoSD": 5.680370830102927e-6,
             "PROBE": 0.08919196087730624,
-            "EXPLOIT": 3.569043731962059e-06,
-            "MALWARE": 8.693984215016019e-07
+            "EXPLOIT": 3.569043731962059e-6,
+            "MALWARE": 8.693984215016019e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -4172,7 +4037,7 @@
                 "feature": "z_6",
                 "feature_index": 6,
                 "feature_value": 1.653593897819519,
-                "weight": -4.809232024660001e-05,
+                "weight": -4.809232024660001e-5,
                 "direction": "opposes_predicted_class"
               }
             ],
@@ -4207,7 +4072,7 @@
               },
               {
                 "rule": "1.28 < z_6 <= 2.16",
-                "weight": -4.809232024660001e-05
+                "weight": -4.809232024660001e-5
               }
             ],
             "because": "Classified as NORMALL because local LIME drivers z_7 (+0.1437), z_0 (+0.0732), z_1 (+0.0365) outweighed opposing signals z_3 (-0.0881), z_5 (-0.0275), z_2 (-0.0118)."
@@ -4218,11 +4083,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.4286,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_1",
-              "z_3",
-              "z_7"
-            ],
+            "overlap_features": ["z_1", "z_3", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -4278,8 +4139,8 @@
             "NORMALL": 0.8809150854073512,
             "DoSD": 0.0033199055570175434,
             "PROBE": 0.11576040416007173,
-            "EXPLOIT": 3.38030493670279e-06,
-            "MALWARE": 1.230709598429611e-06
+            "EXPLOIT": 3.38030493670279e-6,
+            "MALWARE": 1.230709598429611e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -4318,7 +4179,7 @@
               {
                 "feature": "z_1",
                 "feature_index": 1,
-                "feature_value": 3.872112870340061e-07,
+                "feature_value": 3.872112870340061e-7,
                 "weight": 0.03988674981779908,
                 "direction": "supports_predicted_class"
               },
@@ -4386,11 +4247,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.4286,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_3",
-              "z_6",
-              "z_7"
-            ],
+            "overlap_features": ["z_3", "z_6", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -4444,10 +4301,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -4554,13 +4411,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -4614,10 +4465,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -4724,13 +4575,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -4784,10 +4629,10 @@
           "confidence": 0.9999976687961154,
           "probabilities": {
             "NORMALL": 0.9999976687961154,
-            "DoSD": 5.359293974530981e-07,
-            "PROBE": 1.5229312819226634e-06,
-            "EXPLOIT": 2.1671149220815602e-07,
-            "MALWARE": 8.817929695068314e-08
+            "DoSD": 5.359293974530981e-7,
+            "PROBE": 1.5229312819226634e-6,
+            "EXPLOIT": 2.1671149220815602e-7,
+            "MALWARE": 8.817929695068314e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -4894,12 +4739,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 0.75,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_7"],
             "sign_divergence_features": [
               {
                 "feature": "z_3",
@@ -4959,10 +4799,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -5069,13 +4909,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5129,10 +4963,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -5239,12 +5073,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5298,10 +5127,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -5408,13 +5237,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5468,10 +5291,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -5517,7 +5340,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 9.806171874515712e-09,
+                "feature_value": 9.806171874515712e-9,
                 "weight": -0.011098834598708715,
                 "direction": "opposes_predicted_class"
               },
@@ -5578,13 +5401,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5638,10 +5455,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -5748,13 +5565,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5808,10 +5619,10 @@
           "confidence": 0.9999697671996223,
           "probabilities": {
             "NORMALL": 0.9999697671996223,
-            "DoSD": 9.749992083622299e-06,
-            "PROBE": 8.005009577674275e-06,
-            "EXPLOIT": 5.800250164611499e-06,
-            "MALWARE": 6.633671849461583e-06
+            "DoSD": 9.749992083622299e-6,
+            "PROBE": 8.005009577674275e-6,
+            "EXPLOIT": 5.800250164611499e-6,
+            "MALWARE": 6.633671849461583e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -5918,13 +5729,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_6",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_6", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -5978,10 +5783,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -6027,7 +5832,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 1.7431321452932025e-07,
+                "feature_value": 1.7431321452932025e-7,
                 "weight": -0.01621919796436108,
                 "direction": "opposes_predicted_class"
               },
@@ -6088,13 +5893,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6148,10 +5947,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -6258,12 +6057,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6317,10 +6111,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -6427,13 +6221,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6487,10 +6275,10 @@
           "confidence": 0.9999989072481791,
           "probabilities": {
             "NORMALL": 0.9999989072481791,
-            "DoSD": 2.6925363903905645e-07,
-            "PROBE": 5.73113614639927e-07,
-            "EXPLOIT": 2.0413999064001274e-07,
-            "MALWARE": 2.296082119496785e-08
+            "DoSD": 2.6925363903905645e-7,
+            "PROBE": 5.73113614639927e-7,
+            "EXPLOIT": 2.0413999064001274e-7,
+            "MALWARE": 2.296082119496785e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -6597,12 +6385,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6656,10 +6439,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -6720,7 +6503,7 @@
                 "feature": "z_5",
                 "feature_index": 5,
                 "feature_value": 0.0,
-                "weight": 5.4344840637531455e-05,
+                "weight": 5.4344840637531455e-5,
                 "direction": "supports_predicted_class"
               }
             ],
@@ -6755,7 +6538,7 @@
               },
               {
                 "rule": "z_5 <= 0.68",
-                "weight": 5.4344840637531455e-05
+                "weight": 5.4344840637531455e-5
               }
             ],
             "because": "Classified as PROBE because local LIME drivers z_3 (+0.0508), z_4 (+0.0486), z_0 (+0.0330) outweighed opposing signals z_7 (-0.0351), z_6 (-0.0157)."
@@ -6766,13 +6549,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6828,8 +6605,8 @@
             "NORMALL": 0.8770609510354614,
             "DoSD": 0.003319928696179636,
             "PROBE": 0.11961420160015009,
-            "EXPLOIT": 3.382892752294235e-06,
-            "MALWARE": 1.5617096096320895e-06
+            "EXPLOIT": 3.382892752294235e-6,
+            "MALWARE": 1.5617096096320895e-6
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -6840,7 +6617,7 @@
               {
                 "feature": "z_7",
                 "feature_index": 7,
-                "feature_value": 2.1068863134132698e-05,
+                "feature_value": 2.1068863134132698e-5,
                 "weight": 0.18619259566417823,
                 "direction": "supports_predicted_class"
               },
@@ -6936,12 +6713,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_2",
-              "z_3",
-              "z_6",
-              "z_7"
-            ],
+            "overlap_features": ["z_2", "z_3", "z_6", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -6995,10 +6767,10 @@
           "confidence": 0.9107979129558202,
           "probabilities": {
             "NORMALL": 0.9107979129558202,
-            "DoSD": 5.680370830102927e-06,
+            "DoSD": 5.680370830102927e-6,
             "PROBE": 0.08919196087730624,
-            "EXPLOIT": 3.569043731962059e-06,
-            "MALWARE": 8.693984215016019e-07
+            "EXPLOIT": 3.569043731962059e-6,
+            "MALWARE": 8.693984215016019e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -7105,12 +6877,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_1",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_1", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -7164,10 +6931,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -7274,13 +7041,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -7334,10 +7095,10 @@
           "confidence": 0.9999002681838142,
           "probabilities": {
             "NORMALL": 0.9999002681838142,
-            "DoSD": 1.7663908996231235e-05,
-            "PROBE": 1.2149527416719746e-05,
-            "EXPLOIT": 1.1514903437475572e-05,
-            "MALWARE": 5.8345383877167485e-05
+            "DoSD": 1.7663908996231235e-5,
+            "PROBE": 1.2149527416719746e-5,
+            "EXPLOIT": 1.1514903437475572e-5,
+            "MALWARE": 5.8345383877167485e-5
           },
           "lime_local_explanation": {
             "predicted_class_index": 0,
@@ -7444,11 +7205,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.4286,
             "sign_agreement_ratio": 0.6667,
-            "overlap_features": [
-              "z_2",
-              "z_3",
-              "z_7"
-            ],
+            "overlap_features": ["z_2", "z_3", "z_7"],
             "sign_divergence_features": [
               {
                 "feature": "z_7",
@@ -7507,11 +7264,11 @@
           "pred_label": "DoSD",
           "confidence": 0.9999935891893175,
           "probabilities": {
-            "NORMALL": 5.496737079132194e-06,
+            "NORMALL": 5.496737079132194e-6,
             "DoSD": 0.9999935891893175,
-            "PROBE": 6.620262840644702e-07,
-            "EXPLOIT": 3.03016754009554e-07,
-            "MALWARE": 3.512232953855548e-08
+            "PROBE": 6.620262840644702e-7,
+            "EXPLOIT": 3.03016754009554e-7,
+            "MALWARE": 3.512232953855548e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 1,
@@ -7618,13 +7375,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_1",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_1", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -7678,10 +7429,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -7788,13 +7539,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -7847,11 +7592,11 @@
           "pred_label": "DoSD",
           "confidence": 0.9999949004915025,
           "probabilities": {
-            "NORMALL": 4.174861032879562e-06,
+            "NORMALL": 4.174861032879562e-6,
             "DoSD": 0.9999949004915025,
-            "PROBE": 6.325033849760884e-07,
-            "EXPLOIT": 2.9557292830557145e-07,
-            "MALWARE": 2.870048317523318e-08
+            "PROBE": 6.325033849760884e-7,
+            "EXPLOIT": 2.9557292830557145e-7,
+            "MALWARE": 2.870048317523318e-8
           },
           "lime_local_explanation": {
             "predicted_class_index": 1,
@@ -7958,12 +7703,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -8017,9 +7757,9 @@
           "confidence": 0.9991743644293134,
           "probabilities": {
             "NORMALL": 0.0008230287599949776,
-            "DoSD": 4.225942878595864e-07,
-            "PROBE": 8.654961334286783e-07,
-            "EXPLOIT": 1.2695368367429992e-06,
+            "DoSD": 4.225942878595864e-7,
+            "PROBE": 8.654961334286783e-7,
+            "EXPLOIT": 1.2695368367429992e-6,
             "MALWARE": 0.9991743644293134
           },
           "lime_local_explanation": {
@@ -8127,12 +7867,7 @@
             "top_k": 5,
             "jaccard_overlap": 0.6667,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_1",
-              "z_5",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_1", "z_5", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -8186,10 +7921,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -8296,13 +8031,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
@@ -8356,10 +8085,10 @@
           "confidence": 0.8669841253494033,
           "probabilities": {
             "NORMALL": 0.13110844136439154,
-            "DoSD": 1.0941851238991756e-05,
+            "DoSD": 1.0941851238991756e-5,
             "PROBE": 0.8669841253494033,
             "EXPLOIT": 0.0018961991262994996,
-            "MALWARE": 3.108265408021301e-07
+            "MALWARE": 3.108265408021301e-7
           },
           "lime_local_explanation": {
             "predicted_class_index": 2,
@@ -8405,7 +8134,7 @@
               {
                 "feature": "z_6",
                 "feature_index": 6,
-                "feature_value": 9.401570189027098e-09,
+                "feature_value": 9.401570189027098e-9,
                 "weight": -0.00549878807403853,
                 "direction": "opposes_predicted_class"
               },
@@ -8466,13 +8195,7 @@
             "top_k": 5,
             "jaccard_overlap": 1.0,
             "sign_agreement_ratio": 1.0,
-            "overlap_features": [
-              "z_0",
-              "z_2",
-              "z_3",
-              "z_4",
-              "z_7"
-            ],
+            "overlap_features": ["z_0", "z_2", "z_3", "z_4", "z_7"],
             "sign_divergence_features": [],
             "top_lime": [
               {
