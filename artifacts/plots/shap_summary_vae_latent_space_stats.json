@@ -1,0 +1,88 @@
+{
+  "output_plot": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\plots\\shap_summary_vae_latent_space.png",
+  "source_input": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\inference\\all_classes_input.csv",
+  "source_live_predictions": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\inference\\live_predictions.json",
+  "num_samples": 50,
+  "latent_columns": [
+    "z_0",
+    "z_1",
+    "z_2",
+    "z_3",
+    "z_4",
+    "z_5",
+    "z_6",
+    "z_7"
+  ],
+  "mean_abs_shap": {
+    "z_3": 0.23119562,
+    "z_7": 0.20271397,
+    "z_2": 0.13353159,
+    "z_0": 0.12239086,
+    "z_4": 0.09442271,
+    "z_6": 0.04407469,
+    "z_1": 0.04006072,
+    "z_5": 0.01691145
+  },
+  "top_two_mean_abs_shap": [
+    "z_3",
+    "z_7"
+  ],
+  "alignment_notes": {
+    "connection_rate_best_dimension": "z_3",
+    "payload_size_best_dimension": "z_7",
+    "selection_pool": [
+      "z_3",
+      "z_7"
+    ],
+    "per_dimension_alignment": {
+      "z_0": {
+        "connection_rate_score": 0.391995,
+        "connection_rate_feature": "ACK Flag Count",
+        "payload_size_score": 0.699742,
+        "payload_size_feature": "Max Packet Length"
+      },
+      "z_1": {
+        "connection_rate_score": 0.42193,
+        "connection_rate_feature": "PSH Flag Count",
+        "payload_size_score": 0.631549,
+        "payload_size_feature": "Max Packet Length"
+      },
+      "z_2": {
+        "connection_rate_score": 0.672463,
+        "connection_rate_feature": "ACK Flag Count",
+        "payload_size_score": 0.597116,
+        "payload_size_feature": "Fwd Packet Length Min"
+      },
+      "z_3": {
+        "connection_rate_score": 0.490692,
+        "connection_rate_feature": "PSH Flag Count",
+        "payload_size_score": 0.45795,
+        "payload_size_feature": "Min Packet Length"
+      },
+      "z_4": {
+        "connection_rate_score": 0.737776,
+        "connection_rate_feature": "PSH Flag Count",
+        "payload_size_score": 0.515877,
+        "payload_size_feature": "Init_Win_bytes_forward"
+      },
+      "z_5": {
+        "connection_rate_score": 0.614636,
+        "connection_rate_feature": "act_data_pkt_fwd",
+        "payload_size_score": 0.621511,
+        "payload_size_feature": "Subflow Fwd Bytes"
+      },
+      "z_6": {
+        "connection_rate_score": 0.342847,
+        "connection_rate_feature": "ACK Flag Count",
+        "payload_size_score": 0.799136,
+        "payload_size_feature": "Bwd Packet Length Std"
+      },
+      "z_7": {
+        "connection_rate_score": 0.326657,
+        "connection_rate_feature": "ACK Flag Count",
+        "payload_size_score": 0.878612,
+        "payload_size_feature": "Bwd Packet Length Max"
+      }
+    }
+  }
+}
