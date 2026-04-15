@@ -1,0 +1,26 @@
+{
+  "data_dir": "PreProcessing\\stage_2_with_zero_v2",
+  "output_dir": "VAE\\vae_v3_output_16",
+  "latent_dim": 16,
+  "hidden_dims": [
+    512,
+    256,
+    128
+  ],
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 2048,
+  "max_epochs": 120,
+  "patience": 25,
+  "beta_target": 2.0,
+  "warmup_epochs": 40,
+  "free_bits": 2.0,
+  "grad_clip": 1.0,
+  "seed": 42,
+  "val_size": 0.1,
+  "use_amp": true,
+  "device": "cuda",
+  "input_dim": 167,
+  "best_epoch": 0,
+  "best_val_loss": 0.10722082738692944
+}
