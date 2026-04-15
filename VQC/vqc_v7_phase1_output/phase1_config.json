@@ -1,0 +1,55 @@
+{
+  "hybrid_counts": {
+    "0": 5000,
+    "1": 5000,
+    "2": 5000,
+    "3": 7000,
+    "4": 8000
+  },
+  "use_adasyn": true,
+  "adasyn_neighbors": 5,
+  "class_weights": [
+    1.0,
+    2.0,
+    2.0,
+    5.0,
+    30.0
+  ],
+  "focal_gamma": {
+    "0": 2.0,
+    "1": 2.0,
+    "2": 2.5,
+    "3": 3.0,
+    "4": 4.0
+  },
+  "focal_alpha": null,
+  "n_qubits": 8,
+  "ra_reps": 2,
+  "zz_reps": 2,
+  "qnn_features": 16,
+  "head_dims": [
+    128,
+    64
+  ],
+  "dropout": 0.2,
+  "batch_size": 2000,
+  "n_epochs_phase1": 150,
+  "n_epochs_phase2": 100,
+  "lr_phase1": 0.008,
+  "lr_phase2": 0.0008,
+  "patience": 30,
+  "temperature": 0.1,
+  "initial_thresholds": [
+    0.05,
+    0.9,
+    0.7625,
+    0.8625,
+    0.9
+  ],
+  "seeds": [
+    42,
+    123,
+    777
+  ],
+  "device": "cpu"
+}

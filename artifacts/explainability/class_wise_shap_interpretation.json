@@ -1,8 +1,8 @@
 {
   "run_metadata": {
-    "generated_at": "2026-03-29T13:36:58.335381+00:00",
+    "generated_at": "2026-04-02T10:36:14.842117+00:00",
     "source_file": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\inference\\live_predictions.json",
-    "source_created_at": "2026-03-29T13:36:54.848440Z",
+    "source_created_at": "2026-04-02T10:36:13.195945Z",
     "weights": {
       "vqc": 0.0,
       "xgb": 0.6111111111111112,
@@ -22,108 +22,112 @@
     {
       "class_name": "NORMALL",
       "support": {
-        "predicted_count": 18,
+        "predicted_count": 21,
         "probability_observations": 50,
-        "shap_samples_available": 18
+        "shap_samples_available": 21
       },
       "confidence": {
-        "mean_predicted_confidence": 0.965871,
-        "mean_probability_across_all_samples": 0.42242
+        "mean_predicted_confidence": 0.943171,
+        "mean_probability_across_all_samples": 0.463282
       },
       "top_positive_drivers": [
         {
           "feature": "z_7",
-          "mean_shap": 0.205405
+          "mean_shap": 0.229727
         },
         {
           "feature": "z_6",
-          "mean_shap": 0.02858
+          "mean_shap": 0.034217
         },
         {
           "feature": "z_2",
-          "mean_shap": 0.021513
+          "mean_shap": 0.031572
         }
       ],
       "top_negative_drivers": [
         {
           "feature": "z_3",
-          "mean_shap": -0.017373
+          "mean_shap": -0.061685
         },
         {
           "feature": "z_4",
-          "mean_shap": -0.014158
+          "mean_shap": -0.026241
+        },
+        {
+          "feature": "z_0",
+          "mean_shap": -0.000866
         }
       ],
-      "technical_interpretation": "Classified as NORMALL when positive SHAP contributions such as z_7 (+0.2054), z_6 (+0.0286), z_2 (+0.0215) outweigh opposing signals such as z_3 (-0.0174), z_4 (-0.0142) in the latent feature space.",
+      "technical_interpretation": "Classified as NORMALL when positive SHAP contributions such as z_7 (+0.2297), z_6 (+0.0342), z_2 (+0.0316) outweigh opposing signals such as z_3 (-0.0617), z_4 (-0.0262), z_0 (-0.0009) in the latent feature space.",
       "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
       "limitation_notes": []
     },
     {
       "class_name": "DoSD",
       "support": {
-        "predicted_count": 6,
+        "predicted_count": 5,
         "probability_observations": 50,
-        "shap_samples_available": 6
+        "shap_samples_available": 5
       },
       "confidence": {
-        "mean_predicted_confidence": 0.999619,
-        "mean_probability_across_all_samples": 0.120304
+        "mean_predicted_confidence": 0.999963,
+        "mean_probability_across_all_samples": 0.100602
       },
       "top_positive_drivers": [
         {
           "feature": "z_7",
-          "mean_shap": 0.415541
+          "mean_shap": 0.437279
         },
         {
           "feature": "z_0",
-          "mean_shap": 0.223726
+          "mean_shap": 0.199434
         },
         {
           "feature": "z_3",
-          "mean_shap": 0.08711
+          "mean_shap": 0.077078
         }
       ],
       "top_negative_drivers": [],
-      "technical_interpretation": "Classified as DoSD when positive SHAP contributions such as z_7 (+0.4155), z_0 (+0.2237), z_3 (+0.0871) outweigh opposing signals such as none in the latent feature space.",
+      "technical_interpretation": "Classified as DoSD when positive SHAP contributions such as z_7 (+0.4373), z_0 (+0.1994), z_3 (+0.0771) outweigh opposing signals such as none in the latent feature space.",
       "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
       "limitation_notes": []
     },
     {
       "class_name": "PROBE",
       "support": {
-        "predicted_count": 26,
+        "predicted_count": 24,
         "probability_observations": 50,
-        "shap_samples_available": 26
+        "shap_samples_available": 24
       },
       "confidence": {
-        "mean_predicted_confidence": 0.854585,
-        "mean_probability_across_all_samples": 0.456239
+        "mean_predicted_confidence": 0.858283,
+        "mean_probability_across_all_samples": 0.435209
       },
       "top_positive_drivers": [
         {
           "feature": "z_3",
-          "mean_shap": 0.366923
+          "mean_shap": 0.36751
         },
         {
           "feature": "z_2",
-          "mean_shap": 0.235904
+          "mean_shap": 0.236726
         },
         {
           "feature": "z_0",
-          "mean_shap": 0.161206
+          "mean_shap": 0.16172
         }
       ],
       "top_negative_drivers": [
         {
           "feature": "z_7",
-          "mean_shap": -0.147263
+          "mean_shap": -0.146799
         },
         {
           "feature": "z_6",
-          "mean_shap": -0.063625
+          "mean_shap": -0.063453
         }
       ],
-      "technical_interpretation": "Classified as PROBE when positive SHAP contributions such as z_3 (+0.3669), z_2 (+0.2359), z_0 (+0.1612) outweigh opposing signals such as z_7 (-0.1473), z_6 (-0.0636) in the latent feature space.",
+      "technical_interpretation": "Classified as PROBE when positive SHAP contributions such as z_3 (+0.3675), z_2 (+0.2367), z_0 (+0.1617) outweigh opposing signals such as z_7 (-0.1468), z_6 (-0.0635) in the latent feature space.",
       "confidence_note": "High confidence regime for this class in observed predictions (mean confidence >= 0.85).",
       "limitation_notes": []
     },
@@ -136,7 +140,7 @@
       },
       "confidence": {
         "mean_predicted_confidence": null,
-        "mean_probability_across_all_samples": 0.001036
+        "mean_probability_across_all_samples": 0.000874
       },
       "top_positive_drivers": [],
       "top_negative_drivers": [],
@@ -156,7 +160,7 @@
       },
       "confidence": {
         "mean_predicted_confidence": null,
-        "mean_probability_across_all_samples": 0.0
+        "mean_probability_across_all_samples": 3.5e-05
       },
       "top_positive_drivers": [],
       "top_negative_drivers": [],

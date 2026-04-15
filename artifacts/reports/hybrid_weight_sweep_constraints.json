@@ -1,0 +1,101 @@
+{
+  "constraints": {
+    "hybrid_macro_f1_min": 0.82,
+    "malware_precision_min": 0.7,
+    "probe_precision_min": 0.8
+  },
+  "weight_configs": [
+    {
+      "weights": {
+        "vqc": 0.1,
+        "xgb": 0.55,
+        "rf": 0.35
+      },
+      "f1_macro": 0.8233151781037075,
+      "malware_precision": 0.40184615384615385,
+      "malware_f1": 0.46344925479063165,
+      "probe_precision": 0.880609345053202,
+      "probe_f1": 0.8972878331285038,
+      "is_feasible": false
+    },
+    {
+      "weights": {
+        "vqc": 0.2,
+        "xgb": 0.4889,
+        "rf": 0.3111
+      },
+      "f1_macro": 0.8057535015393869,
+      "malware_precision": 0.2862204724409449,
+      "malware_f1": 0.3894990624162872,
+      "probe_precision": 0.8617846906901104,
+      "probe_f1": 0.8892174779863765,
+      "is_feasible": false
+    },
+    {
+      "weights": {
+        "vqc": 0.3,
+        "xgb": 0.4278,
+        "rf": 0.2722
+      },
+      "f1_macro": 0.7703267629312949,
+      "malware_precision": 0.14726090993500465,
+      "malware_f1": 0.24110671936758893,
+      "probe_precision": 0.832181057200434,
+      "probe_f1": 0.8744461819129529,
+      "is_feasible": false
+    },
+    {
+      "weights": {
+        "vqc": 0.4,
+        "xgb": 0.3667,
+        "rf": 0.2333
+      },
+      "f1_macro": 0.7579805435645515,
+      "malware_precision": 0.1276708692767087,
+      "malware_f1": 0.22043996333638863,
+      "probe_precision": 0.7938406870002961,
+      "probe_f1": 0.8523057847298393,
+      "is_feasible": false
+    },
+    {
+      "weights": {
+        "vqc": 0.45,
+        "xgb": 0.3361,
+        "rf": 0.2139
+      },
+      "f1_macro": 0.7521062532599898,
+      "malware_precision": 0.12330790056608418,
+      "malware_f1": 0.21504453267517973,
+      "probe_precision": 0.7718498427446114,
+      "probe_f1": 0.8386368624008528,
+      "is_feasible": false
+    },
+    {
+      "weights": {
+        "vqc": 0.5,
+        "xgb": 0.3056,
+        "rf": 0.1944
+      },
+      "f1_macro": 0.7355628314172404,
+      "malware_precision": 0.1135498320268757,
+      "malware_f1": 0.2003358688135928,
+      "probe_precision": 0.7300095877277085,
+      "probe_f1": 0.8119496663721398,
+      "is_feasible": false
+    }
+  ],
+  "best_feasible": null,
+  "best_overall_by_malware_f1": {
+    "weights": {
+      "vqc": 0.1,
+      "xgb": 0.55,
+      "rf": 0.35
+    },
+    "f1_macro": 0.8233151781037075,
+    "malware_precision": 0.40184615384615385,
+    "malware_f1": 0.46344925479063165,
+    "probe_precision": 0.880609345053202,
+    "probe_f1": 0.8972878331285038,
+    "is_feasible": false
+  }
+}

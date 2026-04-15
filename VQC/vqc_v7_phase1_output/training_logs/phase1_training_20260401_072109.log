@@ -1,0 +1,20 @@
+2026-04-01 07:21:09,378 - INFO - ================================================================================
+2026-04-01 07:21:09,379 - INFO - VQC v7 PHASE 1: DATA SAMPLING & LOSS OPTIMIZATION
+2026-04-01 07:21:09,379 - INFO - ================================================================================
+2026-04-01 07:21:09,379 - INFO - Output directory: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output
+2026-04-01 07:21:09,380 - INFO - Log file: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\training_logs\phase1_training_20260401_072109.log
+2026-04-01 07:21:09,380 - INFO - 
+Configuration:
+2026-04-01 07:21:09,380 - INFO -   MALWARE samples: 5K -> 8000
+2026-04-01 07:21:09,381 - INFO -   EXPLOIT samples: 5K -> 7000
+2026-04-01 07:21:09,381 - INFO -   MALWARE class weight: 15x -> 30.0x
+2026-04-01 07:21:09,381 - INFO -   MALWARE focal gamma: 2.5 -> 4.0
+2026-04-01 07:21:09,381 - INFO -   ADASYN enabled: True
+2026-04-01 07:21:09,381 - INFO -   Device: cpu
+2026-04-01 07:21:09,382 - INFO - 
+Saved configuration to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\phase1_config.json
+2026-04-01 07:21:09,382 - INFO - 
+================================================================================
+2026-04-01 07:21:09,382 - INFO - STEP 1: LOADING DATA
+2026-04-01 07:21:09,383 - INFO - ================================================================================
+2026-04-01 07:21:09,383 - INFO - Loading data from: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\PreProcessing\stage_2_with_zero_v2

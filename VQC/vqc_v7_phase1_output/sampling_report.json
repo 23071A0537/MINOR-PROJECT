@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-04-01T07:22:26.919864",
+  "method": "Hybrid + ADASYN",
+  "target_counts": {
+    "0": 5000,
+    "1": 5000,
+    "2": 5000,
+    "3": 7000,
+    "4": 8000
+  },
+  "final_counts": {
+    "NORMAL": 5000,
+    "DoSD": 5000,
+    "PROBE": 5000,
+    "EXPLOIT": 7000,
+    "MALWARE": 8000
+  },
+  "total_samples": 30000,
+  "adasyn_enabled": true
+}

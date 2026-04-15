@@ -1,0 +1,79 @@
+{
+  "project_root": "../..",
+  "run_mode": {
+    "stage1": "skip",
+    "stage2": "skip",
+    "stage3": "skip",
+    "stage4": "skip",
+    "stage5": "run",
+    "live_inference": "run"
+  },
+  "notebooks": {
+    "stage1": "PreProcessing/Stage1_Preprocessing_Complete.ipynb",
+    "stage2": "PreProcessing/Stage2_Classical_Preprocessing_v2.ipynb",
+    "stage3": "VAE/Stage3_VAE_Combined_v2.ipynb",
+    "stage4": "VQC/Stage4_HybridVQC_v6.ipynb"
+  },
+  "artifacts": {
+    "stage2_y_test": "PreProcessing/stage_2_with_zero_v2/stage2_y_test.parquet",
+    "vae_z_test": "VAE/vae_a_output_16/vae_a_z_test.parquet",
+    "vqc_winner_test_proba": "vqc_ensemble_v6/winner_test_proba.parquet",
+    "rf_test_proba": "random_forest_output/rf_test_proba.parquet",
+    "xgb_model": "xgboost_output/xgboost_model.pkl"
+  },
+  "stage5": {
+    "weights": {
+      "vqc": 0.1,
+      "xgb": 0.55,
+      "rf": 0.35
+    },
+    "output_json": "hybrid layer output.json"
+  },
+  "plots": {
+    "enabled": true,
+    "output_dir": "artifacts/plots"
+  },
+  "live_inference": {
+    "input_glob": "artifacts/inference/all_classes_input.csv",
+    "output_json": "artifacts/inference/live_predictions.json",
+    "require_vqc": false,
+    "require_xgb": true,
+    "output_detail": "full",
+    "random_input": {
+      "enabled": false,
+      "sample_size": 50,
+      "seed": null,
+      "x_path": "PreProcessing/stage_2_with_zero_v2/stage2_X_test.parquet",
+      "y_path": "PreProcessing/stage_2_with_zero_v2/stage2_y_test.parquet",
+      "artefacts_path": "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json"
+    },
+    "artifacts": {
+      "stage2_artefacts": "PreProcessing/stage_2_with_zero_v2/stage2_preprocessing_artefacts.json",
+      "vae_checkpoint": "VAE/vae_a_output_16/vae_a_best.pt",
+      "vae_config": "VAE/vae_a_output_16/vae_a_config.json",
+      "xgb_model": "xgboost_output/xgboost_model.pkl",
+      "rf_model": "random_forest_output/rf_model.pkl",
+      "vqc_model": ""
+    },
+    "weights": {
+      "vqc": 0.0,
+      "xgb": 0.55,
+      "rf": 0.35
+    },
+    "shap": {
+      "enabled": false,
+      "background": "VAE/vae_a_output_16/vae_a_z_train.parquet",
+      "max_samples": 200
+    },
+    "lime": {
+      "enabled": false,
+      "background": "VAE/vae_a_output_16/vae_a_z_train.parquet",
+      "max_samples": 50,
+      "num_features": 10,
+      "num_samples": 2000,
+      "random_state": 42,
+      "consistency_top_k": 5,
+      "output_json": "artifacts/inference/lime_local_explanations.json"
+    }
+  }
+}

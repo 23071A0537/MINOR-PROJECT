@@ -1,0 +1,11 @@
+2026-04-01 12:02:02,134 - INFO - ======================================================================
+2026-04-01 12:02:02,135 - INFO - VQC v7 PHASE 1 TRAINING
+2026-04-01 12:02:02,135 - INFO - ======================================================================
+2026-04-01 12:02:02,136 - INFO - Output: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_trained
+2026-04-01 12:02:02,221 - INFO - Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+2026-04-01 12:02:02,244 - INFO - Unable to initialize backend 'tpu': UNIMPLEMENTED: LoadPjrtPlugin is not implemented on windows yet.
+2026-04-01 12:02:02,245 - INFO - Device: CPU
+2026-04-01 12:02:02,246 - INFO - PennyLane: 0.44.1
+2026-04-01 12:02:02,246 - INFO - JAX: 0.4.33
+2026-04-01 12:02:02,246 - INFO - 
+Building quantum circuit...

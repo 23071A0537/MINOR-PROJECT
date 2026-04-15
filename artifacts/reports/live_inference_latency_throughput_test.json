@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "date": "2026-04-01",
+    "python": "3.11.9",
+    "notes": "SHAP and LIME disabled via perf_config_tmp.json for baseline model timing."
+  },
+  "sweeps": [
+    {
+      "name": "small_batches",
+      "results": [
+        {
+          "samples": 10,
+          "ok": true,
+          "elapsed_sec": 8.454598,
+          "throughput_rows_per_sec": 1.183,
+          "latency_ms_per_row": 845.46,
+          "returncode": 0
+        },
+        {
+          "samples": 25,
+          "ok": true,
+          "elapsed_sec": 8.281796,
+          "throughput_rows_per_sec": 3.019,
+          "latency_ms_per_row": 331.272,
+          "returncode": 0
+        },
+        {
+          "samples": 50,
+          "ok": true,
+          "elapsed_sec": 8.825996,
+          "throughput_rows_per_sec": 5.665,
+          "latency_ms_per_row": 176.52,
+          "returncode": 0
+        },
+        {
+          "samples": 100,
+          "ok": true,
+          "elapsed_sec": 8.062866,
+          "throughput_rows_per_sec": 12.403,
+          "latency_ms_per_row": 80.629,
+          "returncode": 0
+        },
+        {
+          "samples": 200,
+          "ok": true,
+          "elapsed_sec": 8.217027,
+          "throughput_rows_per_sec": 24.34,
+          "latency_ms_per_row": 41.085,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "name": "extended_batches",
+      "results": [
+        {
+          "samples": 200,
+          "ok": true,
+          "elapsed_sec": 6.802283,
+          "throughput_rows_per_sec": 29.402,
+          "latency_ms_per_row": 34.011,
+          "returncode": 0
+        },
+        {
+          "samples": 500,
+          "ok": true,
+          "elapsed_sec": 6.182928,
+          "throughput_rows_per_sec": 80.868,
+          "latency_ms_per_row": 12.366,
+          "returncode": 0
+        },
+        {
+          "samples": 1000,
+          "ok": true,
+          "elapsed_sec": 5.958203,
+          "throughput_rows_per_sec": 167.836,
+          "latency_ms_per_row": 5.958,
+          "returncode": 0
+        },
+        {
+          "samples": 2000,
+          "ok": true,
+          "elapsed_sec": 8.893277,
+          "throughput_rows_per_sec": 224.889,
+          "latency_ms_per_row": 4.447,
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "repeated_trials": {
+    "samples": 1000,
+    "runs_sec": [11.452322, 9.534416, 6.949743, 7.21598, 6.398114],
+    "mean_sec": 8.310115,
+    "std_sec": 1.901361,
+    "p95_sec": 9.534416,
+    "mean_throughput_rows_per_sec": 120.335,
+    "mean_latency_ms_per_row": 8.31
+  }
+}
+

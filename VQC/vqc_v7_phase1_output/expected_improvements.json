@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-04-01T07:22:26.949864",
+  "baseline": {
+    "malware_f1": 0.2012,
+    "exploit_f1": 0.7167,
+    "macro_f1": 0.7329
+  },
+  "expected": {
+    "malware_f1": 0.366184,
+    "exploit_f1": 0.7602753600000001,
+    "macro_f1": 0.774691872
+  },
+  "improvements": {
+    "malware_f1_delta": 0.16498400000000002,
+    "exploit_f1_delta": 0.04357536000000006,
+    "macro_f1_delta": 0.04179187200000001
+  },
+  "interventions": {
+    "malware_samples": "5K -> 8K (+60%)",
+    "exploit_samples": "5K -> 7K (+40%)",
+    "malware_weight": "15x -> 30x (+100%)",
+    "malware_focal_gamma": "2.5 -> 4.0 (+60%)",
+    "adasyn": "Enabled"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "optimization_date": "2026-04-01T07:14:10.999837",
+  "best_strategy": "Current (baseline)",
+  "baseline_f1_macro": 0.7328846172979206,
+  "optimized_f1_macro": 0.7328846172979206,
+  "improvement": 0.0,
+  "thresholds": {
+    "baseline": [
+      0.05,
+      0.9,
+      0.7625,
+      0.8625,
+      0.9
+    ],
+    "optimized": [
+      0.05,
+      0.9,
+      0.7625,
+      0.8625,
+      0.9
+    ]
+  },
+  "per_class_f1": {
+    "NORMAL": {
+      "baseline": 0.981952196985208,
+      "optimized": 0.981952196985208,
+      "improvement": 0.0
+    },
+    "DoSD": {
+      "baseline": 0.9645637741307082,
+      "optimized": 0.9645637741307082,
+      "improvement": 0.0
+    },
+    "PROBE": {
+      "baseline": 0.7999939543249248,
+      "optimized": 0.7999939543249248,
+      "improvement": 0.0
+    },
+    "EXPLOIT": {
+      "baseline": 0.7167181370503297,
+      "optimized": 0.7167181370503297,
+      "improvement": 0.0
+    },
+    "MALWARE": {
+      "baseline": 0.20119502399843275,
+      "optimized": 0.20119502399843275,
+      "improvement": 0.0
+    }
+  }
+}
