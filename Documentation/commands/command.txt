@@ -3,9 +3,11 @@ python scripts/run_pipeline.py --config configs/pipeline/config.json
 python scripts/live_inference.py --config configs/pipeline/config.json
 python scripts/generate_classwise_shap_json.py --input artifacts/inference/live_predictions.json --output artifacts/explainability/class_wise_shap_interpretation.json
 python scripts/explainability_dashboard.py
+python scripts/show_quantum_circuit.py
 
 Without activating .venv (absolute interpreter path)
 "c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/.venv/Scripts/python.exe" scripts/run_pipeline.py --config configs/pipeline/config.json
 "c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/.venv/Scripts/python.exe" scripts/live_inference.py --config configs/pipeline/config.json
 "c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/.venv/Scripts/python.exe" scripts/generate_classwise_shap_json.py --input artifacts/inference/live_predictions.json --output artifacts/explainability/class_wise_shap_interpretation.json
 "c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/.venv/Scripts/python.exe" scripts/explainability_dashboard.py
+"c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/.venv/Scripts/python.exe" scripts/show_quantum_circuit.py
