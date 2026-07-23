@@ -1,7 +1,7 @@
-{
-  "output_plot": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\plots\\shap_summary_vae_latent_space.png",
-  "source_input": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\inference\\all_classes_input.csv",
-  "source_live_predictions": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\artifacts\\inference\\live_predictions.json",
+﻿{
+  "output_plot": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\artifacts\\plots\\shap_summary_vae_latent_space.png",
+  "source_input": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\artifacts\\inference\\all_classes_input.csv",
+  "source_live_predictions": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\artifacts\\inference\\live_predictions.json",
   "num_samples": 50,
   "latent_columns": [
     "z_0",

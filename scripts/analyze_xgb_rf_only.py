@@ -14,7 +14,7 @@ from sklearn.metrics import (
 )
 
 # Paths
-BASE_DIR = Path(r"c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT")
+BASE_DIR = Path(r"c:\Users\[USERNAME]\Desktop\MINOR PROJECT")
 RF_RESULTS_PATH = BASE_DIR / "random_forest_output" / "rf_results.json"
 RF_PROBA_PATH = BASE_DIR / "random_forest_output" / "rf_test_proba.parquet"
 RF_MODEL_PATH = BASE_DIR / "random_forest_output" / "rf_model.pkl"

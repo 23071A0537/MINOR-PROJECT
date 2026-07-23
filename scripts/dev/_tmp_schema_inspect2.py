@@ -1,7 +1,7 @@
 import pyarrow.parquet as pq
 from pathlib import Path
 
-p = Path(r"c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/Stage_2_Intermediate_Files/_unified_aligned.parquet")
+p = Path(r"c:/Users/[USERNAME]/Desktop/MINOR PROJECT/Stage_2_Intermediate_Files/_unified_aligned.parquet")
 
 table = pq.read_table(p)
 cols = table.column_names

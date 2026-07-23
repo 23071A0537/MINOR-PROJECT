@@ -1,7 +1,7 @@
-2026-04-01 12:19:55,408 - INFO - ======================================================================
+﻿2026-04-01 12:19:55,408 - INFO - ======================================================================
 2026-04-01 12:19:55,408 - INFO - VQC v7 PHASE 1 TRAINING
 2026-04-01 12:19:55,408 - INFO - ======================================================================
-2026-04-01 12:19:55,409 - INFO - Output: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_trained
+2026-04-01 12:19:55,409 - INFO - Output: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_trained
 2026-04-01 12:19:55,434 - INFO - Unable to initialize backend 'cuda': 
 2026-04-01 12:19:55,435 - INFO - Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
 2026-04-01 12:19:55,446 - INFO - Unable to initialize backend 'tpu': UNIMPLEMENTED: LoadPjrtPlugin is not implemented on windows yet.
@@ -50,3 +50,4 @@ Training class distribution:
 2026-04-01 12:23:11,953 - INFO -   EP   35/150  loss=0.4208  val_F1=0.8522  lr=7.24e-03  196s
 2026-04-01 12:23:34,622 - INFO -   EP   40/150  loss=0.4134  val_F1=0.8493  lr=6.96e-03  219s
 2026-04-01 12:23:56,599 - INFO -   EP   45/150  loss=0.4078  val_F1=0.8522  lr=6.66e-03  241s
+

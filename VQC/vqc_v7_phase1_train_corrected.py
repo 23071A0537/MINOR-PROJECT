@@ -161,7 +161,7 @@ def load_data_original_distribution():
     
     # Actually, let's use the original v6 data
     # Load from VQC v6 if available
-    vqc_v6_dir = Path("c:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\vqc_ensemble_v6")
+    vqc_v6_dir = Path("c:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\vqc_ensemble_v6")
     
     # For now, use stratified split of original + ADASYN mixed
     # Split into train/val from test set

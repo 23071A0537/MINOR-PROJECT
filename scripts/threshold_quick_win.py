@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 
 # Paths
-BASE_DIR = Path(r'c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT')
+BASE_DIR = Path(r'c:\Users\[USERNAME]\Desktop\MINOR PROJECT')
 VQC_A_DIR = BASE_DIR / 'vqc_a_output_v6'
 VQC_B_DIR = BASE_DIR / 'vqc_b_output_v6'
 VQC_ENS_DIR = BASE_DIR / 'vqc_ensemble_v6'

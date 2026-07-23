@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-BASE_DIR = Path(r"c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT")
+BASE_DIR = Path(r"c:\Users\[USERNAME]\Desktop\MINOR PROJECT")
 
 # Load data
 with open(BASE_DIR / "random_forest_output" / "rf_results.json") as f:

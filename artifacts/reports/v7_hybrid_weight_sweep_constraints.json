@@ -1,14 +1,14 @@
-{
+﻿{
   "constraints": {
     "hybrid_macro_f1_min": 0.82,
     "malware_precision_min": 0.7,
     "probe_precision_min": 0.8
   },
   "inputs": {
-    "v7_vqc_dir": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\VQC\\vqc_v7_phase1_trained",
-    "xgb_model": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\xgboost_output\\xgboost_model.pkl",
-    "rf_test_proba": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\random_forest_output\\rf_test_proba.parquet",
-    "y_test": "C:\\Users\\G.Monish Reddy\\Desktop\\MINOR PROJECT\\PreProcessing\\stage_2_with_zero_v2\\stage2_y_test.parquet"
+    "v7_vqc_dir": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\VQC\\vqc_v7_phase1_trained",
+    "xgb_model": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\xgboost_output\\xgboost_model.pkl",
+    "rf_test_proba": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\random_forest_output\\rf_test_proba.parquet",
+    "y_test": "C:\\Users\\[USERNAME]\\Desktop\\MINOR PROJECT\\PreProcessing\\stage_2_with_zero_v2\\stage2_y_test.parquet"
   },
   "v7_vqc_only": {
     "f1_macro": 0.6919009324610551,

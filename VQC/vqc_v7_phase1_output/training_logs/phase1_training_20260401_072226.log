@@ -1,8 +1,8 @@
 2026-04-01 07:22:26,284 - INFO - ================================================================================
 2026-04-01 07:22:26,284 - INFO - VQC v7 PHASE 1: DATA SAMPLING & LOSS OPTIMIZATION
 2026-04-01 07:22:26,285 - INFO - ================================================================================
-2026-04-01 07:22:26,285 - INFO - Output directory: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output
-2026-04-01 07:22:26,285 - INFO - Log file: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\training_logs\phase1_training_20260401_072226.log
+2026-04-01 07:22:26,285 - INFO - Output directory: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output
+2026-04-01 07:22:26,285 - INFO - Log file: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\training_logs\phase1_training_20260401_072226.log
 2026-04-01 07:22:26,286 - INFO - 
 Configuration:
 2026-04-01 07:22:26,286 - INFO -   MALWARE samples: 5K -> 8000
@@ -12,14 +12,14 @@ Configuration:
 2026-04-01 07:22:26,286 - INFO -   ADASYN enabled: True
 2026-04-01 07:22:26,287 - INFO -   Device: cpu
 2026-04-01 07:22:26,288 - INFO - 
-Saved configuration to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\phase1_config.json
+Saved configuration to: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\phase1_config.json
 2026-04-01 07:22:26,288 - INFO - 
 ================================================================================
 2026-04-01 07:22:26,289 - INFO - STEP 1: LOADING DATA
 2026-04-01 07:22:26,289 - INFO - ================================================================================
-2026-04-01 07:22:26,289 - INFO - Loading data from: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\PreProcessing\stage_2_with_zero_v2
+2026-04-01 07:22:26,289 - INFO - Loading data from: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\PreProcessing\stage_2_with_zero_v2
 2026-04-01 07:22:26,440 - INFO - Train labels: (2381042,), Test labels: (573807,)
-2026-04-01 07:22:26,441 - INFO - Loading VAE features from: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VAE\vae_a_output_16
+2026-04-01 07:22:26,441 - INFO - Loading VAE features from: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VAE\vae_a_output_16
 2026-04-01 07:22:26,718 - INFO - VAE Train: (2381042, 8), Test: (573807, 8)
 2026-04-01 07:22:26,718 - INFO - Note: Validation split will be created from training data during model training
 2026-04-01 07:22:26,769 - INFO - 
@@ -52,7 +52,7 @@ Final training class distribution:
 2026-04-01 07:22:26,919 - INFO -   EXPLOIT   : 7,000
 2026-04-01 07:22:26,919 - INFO -   MALWARE   : 8,000
 2026-04-01 07:22:26,921 - INFO - 
-Saved sampling report to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\sampling_report.json
+Saved sampling report to: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\sampling_report.json
 2026-04-01 07:22:26,921 - INFO - 
 ================================================================================
 2026-04-01 07:22:26,921 - INFO - STEP 3: SAVING PROCESSED DATA
@@ -71,13 +71,13 @@ Expected Performance (Conservative Estimates):
 2026-04-01 07:22:26,949 - INFO -   EXPLOIT F1: 0.7167 -> 0.7603 (+0.0436)
 2026-04-01 07:22:26,949 - INFO -   MACRO F1:   0.7329 -> 0.7747 (+0.0418)
 2026-04-01 07:22:26,952 - INFO - 
-Saved analysis to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\expected_improvements.json
+Saved analysis to: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\expected_improvements.json
 2026-04-01 07:22:26,952 - INFO - 
 ================================================================================
 2026-04-01 07:22:26,952 - INFO - PHASE 1 DATA PREPARATION COMPLETE!
 2026-04-01 07:22:26,952 - INFO - ================================================================================
 2026-04-01 07:22:26,952 - INFO - 
-Files saved to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output
+Files saved to: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output
 2026-04-01 07:22:26,953 - INFO -   - phase1_config.json (configuration)
 2026-04-01 07:22:26,953 - INFO -   - sampling_report.json (sampling details)
 2026-04-01 07:22:26,953 - INFO -   - expected_improvements.json (performance estimates)
@@ -86,7 +86,7 @@ Files saved to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_
 2026-04-01 07:22:26,953 - INFO -   - vae_z_val.npy, y_val.npy (validation data)
 2026-04-01 07:22:26,953 - INFO -   - vae_z_test.npy, y_test.npy (test data)
 2026-04-01 07:22:26,954 - INFO - 
-Training logs saved to: c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\training_logs\phase1_training_20260401_072226.log
+Training logs saved to: c:\Users\[USERNAME]\Desktop\MINOR PROJECT\VQC\vqc_v7_phase1_output\training_logs\phase1_training_20260401_072226.log
 2026-04-01 07:22:26,954 - INFO - 
 ================================================================================
 2026-04-01 07:22:26,954 - INFO - NEXT STEPS:

@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-BASE_DIR = Path(r"c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT")
+BASE_DIR = Path(r"c:\Users\[USERNAME]\Desktop\MINOR PROJECT")
 
 with open(BASE_DIR / "hybrid layer output.json") as f:
     hybrid = json.load(f)

@@ -1,7 +1,7 @@
 import pyarrow.parquet as pq
 from pathlib import Path
 
-base = Path(r"c:/Users/G.Monish Reddy/Desktop/MINOR PROJECT/DataSets")
+base = Path(r"c:/Users/[USERNAME]/Desktop/MINOR PROJECT/DataSets")
 files = [
     base / "nsl_kdd_stage1_output.parquet",
     base / "unsw_nb15_stage1_output.parquet",

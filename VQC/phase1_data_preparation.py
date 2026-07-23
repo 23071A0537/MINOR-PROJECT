@@ -32,7 +32,7 @@ import logging
 # CONFIGURATION
 # ============================================================================
 
-BASE_DIR = Path(r'c:\Users\G.Monish Reddy\Desktop\MINOR PROJECT')
+BASE_DIR = Path(r'c:\Users\[USERNAME]\Desktop\MINOR PROJECT')
 OUTPUT_DIR = BASE_DIR / 'VQC' / 'vqc_v7_phase1_output'
 LOG_DIR = OUTPUT_DIR / 'training_logs'
 CHECKPOINT_DIR = OUTPUT_DIR / 'checkpoints'
