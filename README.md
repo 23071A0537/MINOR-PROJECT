@@ -27,6 +27,14 @@ The pipeline is divided into five distinct stages:
    - Integrates **SHAP** and **LIME** for local and global model interpretability, ensuring the predictions of the ensemble are transparent and explainable.
 
 ## Key Results and Performance
+### Final Model Results
+| Model | Accuracy | F1 Macro |
+| :--- | :---: | :---: |
+| **VQC-A (Variational Quantum Classifier A)** | - | 71.58% |
+| **VQC-B (Variational Quantum Classifier B)** | - | 72.19% |
+| **Random Forest** | 97.83% | 79.80% |
+| **VQC Boosted (with XGBoost)** | 98.03% | 81.64% |
+| **VQC Ensemble** | - | 73.33% |
 
 - **Enhanced Accuracy**: By ensembling VQC with XGBoost and Random Forest, the model achieves highly robust F1 scores across multiple classes.
 - **Dimensionality Reduction**: The VAE successfully compresses high-dimensional input into a dense latent space (e.g., 16 dimensions), significantly reducing the computational overhead for the quantum simulator.
